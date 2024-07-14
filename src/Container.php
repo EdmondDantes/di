@@ -127,4 +127,9 @@ class Container                     implements NestedContainerInterface
 
         return null;
     }
+    
+    public function getContainerLabel(): string
+    {
+        return 'container';
+    }
 }

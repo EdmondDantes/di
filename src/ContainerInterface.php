@@ -11,4 +11,6 @@ interface ContainerInterface
     public function hasDependency(string|DescriptorInterface $key): bool;
     
     public function findKey(string|DescriptorInterface $key): mixed;
+    
+    public function getContainerLabel(): string;
 }
