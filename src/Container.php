@@ -5,14 +5,19 @@ namespace IfCastle\DI;
 
 use IfCastle\DI\Exceptions\DependencyNotFound;
 
-class Container                     implements NestedContainerInterface
+class Container                     implements NestedContainerInterface, DisposableInterface
 {
     private \WeakReference|ContainerInterface|null $parentContainer = null;
     
-    public function __construct(protected ResolverInterface $resolver, protected array $container = [], ContainerInterface $parentContainer = null)
+    public function __construct(
+        protected ResolverInterface $resolver,
+        protected array $container  = [],
+        ContainerInterface $parentContainer = null,
+        bool $isWeakParent          = false
+    )
     {
         if(null !== $parentContainer) {
-            $this->parentContainer  = $parentContainer;
+            $this->parentContainer  = $isWeakParent ? \WeakReference::create($parentContainer) : $parentContainer;
         }
     }
     
@@ -131,5 +136,28 @@ class Container                     implements NestedContainerInterface
     public function getContainerLabel(): string
     {
         return 'container';
+    }
+    
+    public function dispose(): void
+    {
+        $container                  = $this->container;
+        $this->container            = [];
+        $errors                     = [];
+        
+        foreach($container as $key => $dependency) {
+            if($dependency instanceof DisposableInterface) {
+                try {
+                    $dependency->dispose();
+                } catch (\Throwable $exception) {
+                    $errors[$key]   = $exception;
+                }
+            }
+        }
+        
+        if(count($errors) === 1) {
+            throw array_pop($errors);
+        } elseif(count($errors) > 1) {
+            throw new \Error('Multiple errors occurred during disposal');
+        }
     }
 }
