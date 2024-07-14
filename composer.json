@@ -1,0 +1,18 @@
+{
+    "name": "ifcastle/di",
+    "description": "di",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Edmond Dantes",
+            "email": "edmondifthen@proton.me"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "IfCastle\\DI\\": ["./src"]
+        }
+    },
+    "require": {}
+}
