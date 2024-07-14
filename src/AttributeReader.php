@@ -25,7 +25,7 @@ class AttributeReader
             $descriptors                = [];
             
             foreach ($constructor->getParameters() as $parameter) {
-                $descriptors[]          = self::parameterToDescriptor($parameter);
+                $descriptors[]          = self::parameterToDescriptor($parameter, $object);
             }
             
             return $descriptors;
@@ -36,7 +36,7 @@ class AttributeReader
         foreach ($reflection->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PUBLIC)
                  as $property) {
             
-            $descriptors[]              = self::propertyToDescriptor($property);
+            $descriptors[]              = self::propertyToDescriptor($property, $object);
         }
         
         return $descriptors;
