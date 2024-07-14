@@ -6,7 +6,7 @@ namespace IfCastle\DI;
 use IfCastle\DI\Attributes\Dependency;
 use IfCastle\DI\Exceptions\InjectionNotPossible;
 
-class AttributeReader
+class AttributesToDescriptors
 {
     public static function readDescriptors(object|string $object): array
     {
@@ -14,7 +14,7 @@ class AttributeReader
         
         if(false === $reflection->implementsInterface(InjectableInterface::class)) {
             
-            $constructor                = $reflection->getConstructor();
+            $constructor            = $reflection->getConstructor();
             
             
             if($constructor === null)
@@ -22,7 +22,7 @@ class AttributeReader
                 return [];
             }
             
-            $descriptors                = [];
+            $descriptors            = [];
             
             foreach ($constructor->getParameters() as $parameter) {
                 $descriptors[]          = self::parameterToDescriptor($parameter, $object);
@@ -31,12 +31,12 @@ class AttributeReader
             return $descriptors;
         }
         
-        $descriptors                    = [];
+        $descriptors                = [];
         
         foreach ($reflection->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PUBLIC)
                  as $property) {
             
-            $descriptors[]              = self::propertyToDescriptor($property, $object);
+            $descriptors[]          = self::propertyToDescriptor($property, $object);
         }
         
         return $descriptors;
