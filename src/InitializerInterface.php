@@ -29,7 +29,9 @@ interface InitializerInterface
     /**
      * ## Execute the initializer
      *
+     * @param ContainerInterface|null $container
+     *
      * @return mixed
      */
-    public function executeInitializer(): mixed;
+    public function executeInitializer(ContainerInterface $container = null): mixed;
 }

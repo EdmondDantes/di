@@ -62,7 +62,7 @@ class Container                     implements NestedContainerInterface, Disposa
         if($dependency instanceof InitializerInterface) {
             
             try {
-                $this->container[$key] = $dependency->executeInitializer();
+                $this->container[$key] = $dependency->executeInitializer($this);
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;

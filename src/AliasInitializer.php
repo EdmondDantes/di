@@ -8,13 +8,9 @@ namespace IfCastle\DI;
  */
 final class AliasInitializer        implements InitializerInterface
 {
-    private \WeakReference $container;
     private \WeakReference|null $dependency = null;
     
-    public function __construct(readonly public string $alias, ContainerInterface $container, readonly public bool $isRequired = false)
-    {
-        $this->container            = \WeakReference::create($container);
-    }
+    public function __construct(readonly public string $alias, readonly public bool $isRequired = false) {}
 
     #[\Override]
     public function wasCalled(): bool
@@ -23,13 +19,11 @@ final class AliasInitializer        implements InitializerInterface
     }
     
     #[\Override]
-    public function executeInitializer(): mixed
+    public function executeInitializer(ContainerInterface $container = null): mixed
     {
         if($this->dependency !== null) {
             return $this->dependency->get();
         }
-        
-        $container                  = $this->container->get();
         
         if(null === $container) {
             return null;
