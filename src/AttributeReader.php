@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
+use IfCastle\DI\Attributes\Dependency;
 use IfCastle\DI\Exceptions\InjectionNotPossible;
 
 class AttributeReader
@@ -45,28 +46,63 @@ class AttributeReader
     {
         $attributes             = $parameter->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
         
-        if(empty($attributes)) {
-            throw new \Error('Parameter is not annotated with Dependency');
+        if(!empty($attributes)) {
+            $attribute          = $attributes[0];
+            $descriptor         = $attribute->newInstance();
+        } else {
+            $descriptor         = new Dependency;
         }
-        
-        $attribute              = $attributes[0];
-        $descriptor             = $attribute->newInstance();
         
         if($descriptor instanceof DescriptorInterface === false) {
             throw new \Error('Attribute is not an instance of Dependency');
         }
         
-        $key                    = $descriptor->getDependencyKey() ?? $parameter->getName();
-        $type                   = $descriptor->getDependencyType() ?? self::defineType($parameter->getType(), $object);
-        $isRequired             = false === $parameter->allowsNull() && $parameter->isOptional() === false;
-        $isLazyLoad             = $descriptor->isLazy();
-        $isWeakReference        = $parameter->getType()?->getName() === \WeakReference::class;
-        $factory                = $descriptor->getFactory();
+        if(false === $descriptor instanceof Dependency) {
+            return $descriptor;
+        }
+        
+        if($descriptor->key === '') {
+            $descriptor->key    = $parameter->getName();
+        }
+        
+        if($descriptor->type === null) {
+            $descriptor->type   = self::defineType($parameter->getType(), $object);
+        }
+        
+        $descriptor->isRequired = false === $parameter->allowsNull() && $parameter->isOptional() === false;
+        
+        $descriptor->isLazy     = is_array($descriptor->type) && in_array(LazyLoader::class, $descriptor->type, true);
+        
+        return $descriptor;
     }
     
-    protected static function propertyToDescriptor(\ReflectionProperty $property): DescriptorInterface
+    protected static function propertyToDescriptor(\ReflectionProperty $property, object|string $object): DescriptorInterface
     {
-    
+        $attributes             = $property->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
+        
+        if(!empty($attributes)) {
+            $attribute          = $attributes[0];
+            $descriptor         = $attribute->newInstance();
+        } else {
+            $descriptor         = new Dependency;
+        }
+        
+        if($descriptor instanceof DescriptorInterface === false) {
+            throw new \Error('Attribute is not an instance of Dependency');
+        }
+        
+        if($descriptor->key === '') {
+            $descriptor->key    = $property->getName();
+        }
+        
+        if($descriptor->type === null) {
+            $descriptor->type   = self::defineType($property->getType(), $object);
+        }
+        
+        $descriptor->isRequired = false === $property->hasDefaultValue() || $property->getType()?->allowsNull() === true;
+        $descriptor->isLazy     = is_array($descriptor->type) && in_array(LazyLoader::class, $descriptor->type, true);
+        
+        return $descriptor;
     }
     
     /**

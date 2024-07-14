@@ -11,11 +11,11 @@ use IfCastle\DI\FactoryInterface;
 class Dependency implements DescriptorInterface
 {
     public function __construct(
-        protected string $key               = '',
-        protected string|array|null $type   = null,
-        protected bool $isRequired          = true,
-        protected bool $isLazy              = false,
-        protected string $property          = '',
+        public string $key               = '',
+        public string|array|null $type   = null,
+        public bool $isRequired          = true,
+        public bool $isLazy              = false,
+        public string $property          = '',
     ) {}
     
     public function getDependencyKey(): string
