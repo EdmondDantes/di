@@ -7,6 +7,7 @@ use IfCastle\DI\Dependencies\UseConstructorClass;
 use IfCastle\DI\Dependencies\UseConstructorInterface;
 use IfCastle\DI\Dependencies\UseInjectableClass;
 use IfCastle\DI\Dependencies\UseInjectableInterface;
+use IfCastle\DI\Exceptions\DependencyNotFound;
 use PHPUnit\Framework\TestCase;
 
 class ContainerTest                 extends TestCase
@@ -32,5 +33,11 @@ class ContainerTest                 extends TestCase
 
         $this->assertEquals($class1, $this->container->resolveDependency('alias1'));
         $this->assertEquals($class2, $this->container->resolveDependency('alias2'));
+    }
+    
+    public function testDependencyNotFound(): void
+    {
+        $this->expectException(DependencyNotFound::class);
+        $this->container->resolveDependency('non-existent');
     }
 }
