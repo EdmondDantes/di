@@ -1,6 +1,7 @@
 {
     "name": "ifcastle/di",
-    "description": "di",
+    "description": "The dependency injection container",
+    "keywords": ["di", "dependency injection", "container", "ioc"],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -9,9 +10,12 @@
             "email": "edmondifthen@proton.me"
         }
     ],
+    "require": {
+        "php": ">=8.3"
+    },
     "autoload": {
         "psr-4": {
-            "IfCastle\\DI\\": ["./src"]
+            "IfCastle\\DI\\": ["src/"]
         }
     },
     "autoload-dev": {
