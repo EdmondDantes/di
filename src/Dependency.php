@@ -1,11 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace IfCastle\DI\Attributes;
+namespace IfCastle\DI;
 
 use Attribute;
-use IfCastle\DI\DescriptorInterface;
-use IfCastle\DI\FactoryInterface;
 
 #[Attribute(Attribute::TARGET_PROPERTY|Attribute::TARGET_PARAMETER)]
 class Dependency implements DescriptorInterface
@@ -18,31 +16,37 @@ class Dependency implements DescriptorInterface
         public string $property          = '',
     ) {}
     
+    #[\Override]
     public function getDependencyKey(): string
     {
         return $this->key;
     }
     
+    #[\Override]
     public function getDependencyProperty(): string
     {
         return $this->property;
     }
     
+    #[\Override]
     public function getDependencyType(): string|array|null
     {
         return $this->type;
     }
     
+    #[\Override]
     public function isRequired(): bool
     {
         return $this->isRequired;
     }
     
+    #[\Override]
     public function isLazy(): bool
     {
         return $this->isLazy;
     }
     
+    #[\Override]
     public function getFactory(): FactoryInterface|null
     {
         return null;

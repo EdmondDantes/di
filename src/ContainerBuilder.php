@@ -7,6 +7,7 @@ class ContainerBuilder              implements BuilderInterface
 {
     protected array $bindings       = [];
     
+    #[\Override]
     public function bind(array|string $interface, DependencyInterface $dependency): static
     {
         $keys                       = is_array($interface) ? $interface : [$interface];
@@ -30,16 +31,19 @@ class ContainerBuilder              implements BuilderInterface
         return $this;
     }
     
+    #[\Override]
     public function bindConstructible(array|string $interface, string $class): static
     {
         return $this->bind($interface, new ConstructibleDependency($class));
     }
     
+    #[\Override]
     public function bindInjectable(array|string $interface, string $class): static
     {
         return $this->bind($interface, new ConstructibleDependency($class, false));
     }
     
+    #[\Override]
     public function set(string $key, mixed $value): static
     {
         if(array_key_exists($key, $this->bindings)) {
@@ -51,6 +55,7 @@ class ContainerBuilder              implements BuilderInterface
         return $this;
     }
     
+    #[\Override]
     public function buildContainer(ResolverInterface $resolver): ContainerInterface
     {
         $bindings                   = $this->bindings;

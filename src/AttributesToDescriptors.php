@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
-use IfCastle\DI\Attributes\Dependency;
 use IfCastle\DI\Exceptions\InjectionNotPossible;
 
 class AttributesToDescriptors

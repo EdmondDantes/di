@@ -14,5 +14,13 @@
             "IfCastle\\DI\\": ["./src"]
         }
     },
-    "require": {}
+    "autoload-dev": {
+        "psr-4": {
+            "IfCastle\\DI\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.2",
+        "rector/rector": "^1.2"
+    }
 }

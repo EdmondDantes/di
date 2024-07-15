@@ -25,7 +25,7 @@ class DependencyNotFound            extends \Exception
         $file                       = '';
         $line                       = '';
         $key                        = $name instanceof DescriptorInterface ? $name->getDependencyKey() : $name;
-        $forDependency              = $forDependency !== null ? get_class($forDependency) : '';
+        $forDependency              = $forDependency !== null ? $forDependency::class : '';
         $container                  = $container->getContainerLabel();
         
         $backtrace                  = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4);

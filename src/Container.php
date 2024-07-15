@@ -21,6 +21,7 @@ class Container                     implements NestedContainerInterface, Disposa
         }
     }
     
+    #[\Override]
     public function getParentContainer(): ContainerInterface|null
     {
         if($this->parentContainer instanceof \WeakReference) {
@@ -30,6 +31,7 @@ class Container                     implements NestedContainerInterface, Disposa
         return $this->parentContainer;
     }
     
+    #[\Override]
     public function resolveDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null): mixed
     {
         $dependency                 = $this->findDependency($name, $forDependency);
@@ -45,6 +47,7 @@ class Container                     implements NestedContainerInterface, Disposa
         return $dependency;
     }
     
+    #[\Override]
     public function findDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null): mixed
     {
         $key                        = $this->findKey($name);
@@ -88,6 +91,7 @@ class Container                     implements NestedContainerInterface, Disposa
         return null;
     }
     
+    #[\Override]
     public function getDependencyIfInitialized(string|DescriptorInterface $name): mixed
     {
         $key                        = $this->findKey($name);
@@ -109,16 +113,22 @@ class Container                     implements NestedContainerInterface, Disposa
         return $dependency;
     }
     
-    public function hasDependency(string|DescriptorInterface $key): bool
+    #[\Override]
+    public function hasDependency(string|DescriptorInterface $key) : bool
     {
-        return $this->findKey($key) !== null || ($this->getParentContainer()?->hasDependency($key) ?? false);
+        if ($this->findKey($key) !== null) {
+            return true;
+        }
+        return $this->getParentContainer()?->hasDependency($key) ?? false;
     }
     
+    #[\Override]
     public function findKey(DescriptorInterface|string $key): string|null
     {
-        if(is_string($key) && array_key_exists($key, $this->container)) {
+        if (is_string($key) && array_key_exists($key, $this->container)) {
             return $key;
-        } elseif (is_string($key)) {
+        }
+        if (is_string($key)) {
             return null;
         }
         
@@ -133,11 +143,13 @@ class Container                     implements NestedContainerInterface, Disposa
         return null;
     }
     
+    #[\Override]
     public function getContainerLabel(): string
     {
         return 'container';
     }
     
+    #[\Override]
     public function dispose(): void
     {
         $container                  = $this->container;
@@ -153,10 +165,11 @@ class Container                     implements NestedContainerInterface, Disposa
                 }
             }
         }
-        
-        if(count($errors) === 1) {
+        if (count($errors) === 1) {
             throw array_pop($errors);
-        } elseif(count($errors) > 1) {
+        }
+        
+        if (count($errors) > 1) {
             throw new \Error('Multiple errors occurred during disposal');
         }
     }

@@ -8,16 +8,19 @@ final readonly class ConstructibleDependency implements DependencyInterface, Con
     public function __construct(private string $className, private bool $useConstructor = true) {}
     
     
+    #[\Override]
     public function getClassName(): string
     {
         return $this->className;
     }
     
+    #[\Override]
     public function useConstructor(): bool
     {
         return $this->useConstructor;
     }
     
+    #[\Override]
     public function getDependencyDescriptors(): array
     {
         return [];

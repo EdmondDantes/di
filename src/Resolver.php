@@ -64,11 +64,13 @@ class Resolver                      implements ResolverInterface
         return $container->resolveDependency($descriptor, $forDependency);
     }
     
+    #[\Override]
     public function canResolveDependency(DependencyInterface $dependency, ContainerInterface $container): bool
     {
         return $dependency instanceof ConstructibleInterface;
     }
     
+    #[\Override]
     public function resolveDependency(DependencyInterface $dependency, ContainerInterface $container): mixed
     {
         $self                       = $dependency;

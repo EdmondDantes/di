@@ -21,8 +21,6 @@ interface InitializerInterface
 {
     /**
      * ## Check if the initializer has been called
-     *
-     * @return bool
      */
     public function wasCalled(): bool;
     
@@ -30,8 +28,6 @@ interface InitializerInterface
      * ## Execute the initializer
      *
      * @param ContainerInterface|null $container
-     *
-     * @return mixed
      */
     public function executeInitializer(ContainerInterface $container = null): mixed;
 }
