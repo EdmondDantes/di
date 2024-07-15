@@ -25,7 +25,7 @@ class ContainerBuilder              implements BuilderInterface
                 throw new \InvalidArgumentException("Interface '$key' already bound");
             }
             
-            $this->bindings[$key]    = new AliasInitializer($key);
+            $this->bindings[$key]    = new AliasInitializer($firstKey);
         }
         
         return $this;
