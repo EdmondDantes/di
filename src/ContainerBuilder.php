@@ -106,6 +106,7 @@ class ContainerBuilder              implements BuilderInterface
         return new Container($resolver, $bindings);
     }
     
+    #[\Override]
     public function getKeyAsString(string $key): string
     {
         if(false === array_key_exists($key, $this->bindings)) {

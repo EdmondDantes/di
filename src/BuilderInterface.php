@@ -13,5 +13,7 @@ interface BuilderInterface
     public function bindObject(string|array $interface, object $object, bool $isThrow = true): static;
     public function set(string $key, mixed $value): static;
     
+    public function getKeyAsString(string $key): string;
+    
     public function buildContainer(ResolverInterface $resolver): ContainerInterface;
 }
