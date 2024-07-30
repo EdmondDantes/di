@@ -63,6 +63,7 @@ class ContainerBuilder              implements BuilderInterface
         return $this->bind($interface, new ConstructibleDependency($class, false));
     }
     
+    #[\Override]
     public function bindObject(array|string $interface, object $object, bool $isThrow = true): static
     {
         if($object instanceof InitializerInterface || $object instanceof DependencyInterface) {
