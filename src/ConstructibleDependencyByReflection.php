@@ -9,7 +9,8 @@ final class ConstructibleDependencyByReflection implements DependencyInterface, 
     
     public function __construct(
         private readonly string $className,
-        private readonly bool $useConstructor = true
+        private readonly bool $useConstructor = true,
+        private readonly bool $resolveScalarAsConfig = true
     ) {}
     
     #[\Override]
@@ -32,7 +33,7 @@ final class ConstructibleDependencyByReflection implements DependencyInterface, 
         }
         
         $this->descriptors          = [];
-        $this->descriptors          = AttributesToDescriptors::readDescriptors($this->className);
+        $this->descriptors          = AttributesToDescriptors::readDescriptors($this->className, $this->resolveScalarAsConfig);
         
         return $this->descriptors;
     }

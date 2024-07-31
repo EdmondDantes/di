@@ -5,5 +5,5 @@ namespace IfCastle\DI;
 
 interface FactoryInterface
 {
-    public function create(ContainerInterface $container, DescriptorInterface $descriptor, DependencyInterface $forDependency = null): object;
+    public function create(ContainerInterface $container, DescriptorInterface $descriptor, DependencyInterface $forDependency = null): object|null;
 }

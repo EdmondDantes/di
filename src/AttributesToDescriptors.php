@@ -7,7 +7,7 @@ use IfCastle\DI\Exceptions\InjectionNotPossible;
 
 class AttributesToDescriptors
 {
-    public static function readDescriptors(object|string $object): array
+    public static function readDescriptors(object|string $object, bool $resolveScalarAsConfig = true): array
     {
         $reflection                 = new \ReflectionClass($object);
         
@@ -24,7 +24,7 @@ class AttributesToDescriptors
             $descriptors            = [];
             
             foreach ($constructor->getParameters() as $parameter) {
-                $descriptors[]          = self::parameterToDescriptor($parameter, $object);
+                $descriptors[]          = self::parameterToDescriptor($parameter, $object, $resolveScalarAsConfig);
             }
             
             return $descriptors;
@@ -35,13 +35,13 @@ class AttributesToDescriptors
         foreach ($reflection->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PUBLIC)
                  as $property) {
             
-            $descriptors[]          = self::propertyToDescriptor($property, $object);
+            $descriptors[]          = self::propertyToDescriptor($property, $object, $resolveScalarAsConfig);
         }
         
         return $descriptors;
     }
     
-    protected static function parameterToDescriptor(\ReflectionParameter $parameter, object|string $object): DescriptorInterface
+    protected static function parameterToDescriptor(\ReflectionParameter $parameter, object|string $object, bool $resolveScalarAsConfig = true): DescriptorInterface
     {
         $attributes             = $parameter->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
         
@@ -75,7 +75,7 @@ class AttributesToDescriptors
         return $descriptor;
     }
     
-    protected static function propertyToDescriptor(\ReflectionProperty $property, object|string $object): DescriptorInterface
+    protected static function propertyToDescriptor(\ReflectionProperty $property, object|string $object, bool $resolveScalarAsConfig = true): DescriptorInterface
     {
         $attributes             = $property->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
         

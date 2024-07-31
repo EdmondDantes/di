@@ -61,6 +61,10 @@ class Resolver                      implements ResolverInterface
             return $object;
         }
         
+        if($descriptor->getFactory() !== null) {
+            return null;
+        }
+        
         return $container->resolveDependency($descriptor, $forDependency);
     }
     

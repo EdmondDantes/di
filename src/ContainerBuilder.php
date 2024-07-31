@@ -7,6 +7,8 @@ class ContainerBuilder              implements BuilderInterface
 {
     protected array $bindings       = [];
     
+    public function __construct(protected bool $resolveScalarAsConfig = true) {}
+    
     #[\Override]
     public function isBound(string ...$keys): bool
     {
@@ -20,7 +22,11 @@ class ContainerBuilder              implements BuilderInterface
     }
     
     #[\Override]
-    public function bind(array|string $interface, DependencyInterface|InitializerInterface $dependency, bool $isThrow = true): static
+    public function bind(
+        array|string                             $interface,
+        DependencyInterface|InitializerInterface $dependency,
+        bool                                     $isThrow = true
+    ): static
     {
         $keys                       = is_array($interface) ? $interface : [$interface];
         $firstKey                   = array_shift($keys);
@@ -54,13 +60,21 @@ class ContainerBuilder              implements BuilderInterface
     #[\Override]
     public function bindConstructible(array|string $interface, string $class, bool $isThrow = true): static
     {
-        return $this->bind($interface, new ConstructibleDependencyByReflection($class), $isThrow);
+        return $this->bind(
+            $interface,
+            new ConstructibleDependencyByReflection($class, true, $this->resolveScalarAsConfig),
+            $isThrow
+        );
     }
     
     #[\Override]
     public function bindInjectable(array|string $interface, string $class, bool $isThrow = true): static
     {
-        return $this->bind($interface, new ConstructibleDependencyByReflection($class, false));
+        return $this->bind(
+            $interface,
+            new ConstructibleDependencyByReflection($class, false, $this->resolveScalarAsConfig),
+            $isThrow
+        );
     }
     
     #[\Override]
@@ -74,7 +88,9 @@ class ContainerBuilder              implements BuilderInterface
             
             if(array_key_exists($key, $this->bindings)) {
                 if($isThrow) {
-                    throw new \InvalidArgumentException("Interface '$key' already bound to '".$this->getKeyAsString($key)."'");
+                    throw new \InvalidArgumentException(
+                        "Interface '$key' already bound to '".$this->getKeyAsString($key)."'"
+                    );
                 } else {
                     continue;
                 }
