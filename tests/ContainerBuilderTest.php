@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
-use IfCastle\DI\Dependencies\Test;
+use IfCastle\DI\Dependencies\SomeClass;
 use PHPUnit\Framework\TestCase;
 
 class ContainerBuilderTest extends TestCase
@@ -33,7 +33,7 @@ class ContainerBuilderTest extends TestCase
     public function testBindConstructible(): void
     {
         $builder                    = new ContainerBuilder();
-        $builder->bindConstructible('test', Test::class);
+        $builder->bindConstructible('test', SomeClass::class);
         $this->assertTrue($builder->isBound('test'));
         
         $container                  = $builder->buildContainer($this->createMock(ResolverInterface::class));
@@ -43,7 +43,7 @@ class ContainerBuilderTest extends TestCase
     public function testBindInjectable(): void
     {
         $builder                    = new ContainerBuilder();
-        $builder->bindInjectable('test', Test::class);
+        $builder->bindInjectable('test', SomeClass::class);
         $this->assertTrue($builder->isBound('test'));
         
         $container = $builder->buildContainer($this->createMock(ResolverInterface::class));

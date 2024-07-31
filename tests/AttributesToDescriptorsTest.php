@@ -5,7 +5,7 @@ namespace IfCastle\DI;
 
 use IfCastle\DI\Dependencies\ClassWithScalarDependencies;
 use IfCastle\DI\Dependencies\InjectableClass;
-use IfCastle\DI\Dependencies\Test;
+use IfCastle\DI\Dependencies\SomeClass;
 use IfCastle\DI\Dependencies\UseConstructorInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +13,7 @@ class AttributesToDescriptorsTest extends TestCase
 {
     public function testParameterToDescriptor(): void
     {
-        $descriptors                = AttributesToDescriptors::readDescriptors(Test::class);
+        $descriptors                = AttributesToDescriptors::readDescriptors(SomeClass::class);
         
         $this->assertIsArray($descriptors);
         

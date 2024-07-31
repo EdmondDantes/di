@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace IfCastle\DI\Dependencies;
 
-readonly class Test
+readonly class SomeClass
 {
     public function __construct(
         private UseConstructorInterface $some,
