@@ -35,6 +35,11 @@ class AttributesToDescriptors
         foreach ($reflection->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PUBLIC)
                  as $property) {
             
+            // only DescriptorInterface attributes
+            if(empty($property->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF))) {
+                continue;
+            }
+            
             $descriptors[]          = self::propertyToDescriptor($reflection, $property, $object, $resolveScalarAsConfig);
         }
         
@@ -110,6 +115,10 @@ class AttributesToDescriptors
             $descriptor->key    = $property->getName();
         }
         
+        if($descriptor->property === '') {
+            $descriptor->property = $property->getName();
+        }
+        
         if($descriptor->type === null) {
             $descriptor->type   = self::defineType($property->getType(), $object);
         }
@@ -120,7 +129,7 @@ class AttributesToDescriptors
 
         self::handleConfigSection($descriptor, $reflectionClass);
         
-        $descriptor->isRequired = false === $property->hasDefaultValue() || $property->getType()?->allowsNull() === true;
+        $descriptor->isRequired = false === ($property->hasDefaultValue() || $property->getType()?->allowsNull());
         $descriptor->isLazy     = is_array($descriptor->type) && in_array(LazyLoader::class, $descriptor->type, true);
         
         return $descriptor;
