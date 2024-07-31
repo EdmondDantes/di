@@ -7,7 +7,14 @@ class ContainerBuilder              implements BuilderInterface
 {
     protected array $bindings       = [];
     
-    public function __construct(protected bool $resolveScalarAsConfig = true) {}
+    /**
+     * @param bool $useDeferredReflection   Specifies to use reflection for analyzing dependencies only at the moment the dependency is used.
+     * @param bool $resolveScalarAsConfig   Specifies to resolve scalar values as configuration dependency-values.
+     */
+    public function __construct(
+        protected bool $useDeferredReflection = false,
+        protected bool $resolveScalarAsConfig = true
+    ) {}
     
     #[\Override]
     public function isBound(string ...$keys): bool
@@ -62,7 +69,8 @@ class ContainerBuilder              implements BuilderInterface
     {
         return $this->bind(
             $interface,
-            new ConstructibleDependencyByReflection($class, true, $this->resolveScalarAsConfig),
+            $this->useDeferredReflection ? new ConstructibleDependencyByReflection($class, true, $this->resolveScalarAsConfig) :
+            new ConstructibleDependency($class, true, AttributesToDescriptors::readDescriptors($class, $this->resolveScalarAsConfig)),
             $isThrow
         );
     }
@@ -72,7 +80,8 @@ class ContainerBuilder              implements BuilderInterface
     {
         return $this->bind(
             $interface,
-            new ConstructibleDependencyByReflection($class, false, $this->resolveScalarAsConfig),
+            $this->useDeferredReflection ? new ConstructibleDependencyByReflection($class, false, $this->resolveScalarAsConfig) :
+            new ConstructibleDependency($class, false, AttributesToDescriptors::readDescriptors($class, $this->resolveScalarAsConfig)),
             $isThrow
         );
     }

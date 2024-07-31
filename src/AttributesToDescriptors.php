@@ -24,7 +24,7 @@ class AttributesToDescriptors
             $descriptors            = [];
             
             foreach ($constructor->getParameters() as $parameter) {
-                $descriptors[]          = self::parameterToDescriptor($parameter, $object, $resolveScalarAsConfig);
+                $descriptors[]          = self::parameterToDescriptor($reflection, $parameter, $object, $resolveScalarAsConfig);
             }
             
             return $descriptors;
@@ -35,13 +35,18 @@ class AttributesToDescriptors
         foreach ($reflection->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PUBLIC)
                  as $property) {
             
-            $descriptors[]          = self::propertyToDescriptor($property, $object, $resolveScalarAsConfig);
+            $descriptors[]          = self::propertyToDescriptor($reflection, $property, $object, $resolveScalarAsConfig);
         }
         
         return $descriptors;
     }
     
-    protected static function parameterToDescriptor(\ReflectionParameter $parameter, object|string $object, bool $resolveScalarAsConfig = true): DescriptorInterface
+    protected static function parameterToDescriptor(
+        \ReflectionClass     $reflectionClass,
+        \ReflectionParameter $parameter,
+        object|string        $object,
+        bool                 $resolveScalarAsConfig = true
+    ): DescriptorInterface
     {
         $attributes             = $parameter->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
         
@@ -68,6 +73,12 @@ class AttributesToDescriptors
             $descriptor->type   = self::defineType($parameter->getType(), $object);
         }
         
+        if($resolveScalarAsConfig && false === $descriptor instanceof FromConfig && self::isScalarType($descriptor->type)) {
+            $descriptor         = new FromConfig($parameter->getName(), $descriptor->type);
+        }
+        
+        self::handleConfigSection($descriptor, $reflectionClass);
+        
         $descriptor->isRequired = false === $parameter->allowsNull() && $parameter->isOptional() === false;
         
         $descriptor->isLazy     = is_array($descriptor->type) && in_array(LazyLoader::class, $descriptor->type, true);
@@ -75,7 +86,12 @@ class AttributesToDescriptors
         return $descriptor;
     }
     
-    protected static function propertyToDescriptor(\ReflectionProperty $property, object|string $object, bool $resolveScalarAsConfig = true): DescriptorInterface
+    protected static function propertyToDescriptor(
+        \ReflectionClass    $reflectionClass,
+        \ReflectionProperty $property,
+        object|string       $object,
+        bool                $resolveScalarAsConfig = true
+    ): DescriptorInterface
     {
         $attributes             = $property->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
         
@@ -97,6 +113,12 @@ class AttributesToDescriptors
         if($descriptor->type === null) {
             $descriptor->type   = self::defineType($property->getType(), $object);
         }
+        
+        if($resolveScalarAsConfig && false === $descriptor instanceof FromConfig && self::isScalarType($descriptor->type)) {
+            $descriptor         = new FromConfig($property->getName(), $descriptor->type);
+        }
+
+        self::handleConfigSection($descriptor, $reflectionClass);
         
         $descriptor->isRequired = false === $property->hasDefaultValue() || $property->getType()?->allowsNull() === true;
         $descriptor->isLazy     = is_array($descriptor->type) && in_array(LazyLoader::class, $descriptor->type, true);
@@ -173,5 +195,43 @@ class AttributesToDescriptors
         }
         
         throw new InjectionNotPossible($object, 'intersection type', 'object');
+    }
+    
+    protected static function handleConfigSection(mixed $descriptor, \ReflectionClass $reflectionClass): void
+    {
+        if($descriptor instanceof FromConfig) {
+            $attributes         = $reflectionClass->getAttributes(ConfigSection::class, \ReflectionAttribute::IS_INSTANCEOF);
+            
+            if($attributes !== []) {
+                $descriptor->defineSection($attributes[0]->newInstance()->section);
+            }
+        }
+    }
+    
+    protected static function isScalarType(array|string|null $type): bool
+    {
+        if(null === $type) {
+            return false;
+        }
+        
+        if(is_string($type)) {
+            return match ($type) {
+                'int', 'float', 'string', 'bool', 'array'
+                            => true,
+                default     => false
+            };
+        }
+        
+        foreach ($type as $t) {
+            if(false === is_string($t) || false === match ($t) {
+                'null', 'int', 'float', 'string', 'bool', 'array'
+                            => true,
+                default     => false
+            }) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
