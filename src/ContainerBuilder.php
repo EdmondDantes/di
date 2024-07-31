@@ -54,13 +54,13 @@ class ContainerBuilder              implements BuilderInterface
     #[\Override]
     public function bindConstructible(array|string $interface, string $class, bool $isThrow = true): static
     {
-        return $this->bind($interface, new ConstructibleDependency($class), $isThrow);
+        return $this->bind($interface, new ConstructibleDependencyByReflection($class), $isThrow);
     }
     
     #[\Override]
     public function bindInjectable(array|string $interface, string $class, bool $isThrow = true): static
     {
-        return $this->bind($interface, new ConstructibleDependency($class, false));
+        return $this->bind($interface, new ConstructibleDependencyByReflection($class, false));
     }
     
     #[\Override]

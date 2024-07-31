@@ -5,7 +5,11 @@ namespace IfCastle\DI;
 
 final readonly class ConstructibleDependency implements DependencyInterface, ConstructibleInterface
 {
-    public function __construct(private string $className, private bool $useConstructor = true) {}
+    public function __construct(
+        private string $className,
+        private bool   $useConstructor = true,
+        private array  $descriptors = []
+    ) {}
     
     
     #[\Override]
@@ -23,6 +27,6 @@ final readonly class ConstructibleDependency implements DependencyInterface, Con
     #[\Override]
     public function getDependencyDescriptors(): array
     {
-        return [];
+        return $this->descriptors;
     }
 }
