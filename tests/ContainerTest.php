@@ -40,4 +40,12 @@ class ContainerTest                 extends TestCase
         $this->expectException(DependencyNotFound::class);
         $this->container->resolveDependency('non-existent');
     }
+    
+    public function testWeakReference(): void
+    {
+        $object                     = new \stdClass;
+        $container                  = new Container(new Resolver, ['stdClass' => \WeakReference::create($object)]);
+        
+        $this->assertEquals($object, $container->resolveDependency('stdClass'));
+    }
 }

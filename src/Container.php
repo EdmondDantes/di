@@ -73,6 +73,10 @@ class Container                     implements NestedContainerInterface, Disposa
             }
         }
         
+        if($dependency instanceof \WeakReference) {
+            return $dependency->get();
+        }
+        
         if(false === $dependency instanceof DependencyInterface) {
             return $dependency;
         }
@@ -81,6 +85,11 @@ class Container                     implements NestedContainerInterface, Disposa
             
             try {
                 $this->container[$key] = $this->resolver->resolveDependency($dependency, $this);
+                
+                if($this->container[$key] instanceof \WeakReference) {
+                    return $this->container[$key]->get();
+                }
+                
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;
