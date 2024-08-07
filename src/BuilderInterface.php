@@ -15,5 +15,9 @@ interface BuilderInterface
     
     public function getKeyAsString(string $key): string;
     
-    public function buildContainer(ResolverInterface $resolver): ContainerInterface;
+    public function buildContainer(
+        ResolverInterface  $resolver,
+        ContainerInterface $parentContainer = null,
+        bool               $isWeakParent = false
+    ): ContainerInterface;
 }

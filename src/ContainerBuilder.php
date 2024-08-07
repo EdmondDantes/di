@@ -124,12 +124,16 @@ class ContainerBuilder              implements BuilderInterface
     }
     
     #[\Override]
-    public function buildContainer(ResolverInterface $resolver): ContainerInterface
+    public function buildContainer(
+        ResolverInterface  $resolver,
+        ContainerInterface $parentContainer = null,
+        bool               $isWeakParent = false
+    ): ContainerInterface
     {
         $bindings                   = $this->bindings;
         $this->bindings             = [];
         
-        return new Container($resolver, $bindings);
+        return new Container($resolver, $bindings, $parentContainer, $isWeakParent);
     }
     
     #[\Override]
