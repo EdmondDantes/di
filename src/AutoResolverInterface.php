@@ -5,5 +5,5 @@ namespace IfCastle\DI;
 
 interface AutoResolverInterface
 {
-    public function resolveDependencies(ContainerInterface $container): static;
+    public function resolveDependencies(ContainerInterface $container): void;
 }
