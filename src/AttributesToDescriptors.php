@@ -9,7 +9,11 @@ class AttributesToDescriptors
 {
     public static function readDescriptors(object|string $object, bool $resolveScalarAsConfig = true): array
     {
-        $reflection                 = new \ReflectionClass($object);
+        if($object instanceof \ReflectionClass) {
+            $reflection             = $object;
+        } else {
+            $reflection             = new \ReflectionClass($object);
+        }
         
         if(false === $reflection->implementsInterface(InjectableInterface::class)) {
             
