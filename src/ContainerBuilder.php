@@ -32,13 +32,14 @@ class ContainerBuilder              implements BuilderInterface
     public function bind(
         array|string                             $interface,
         DependencyInterface|InitializerInterface $dependency,
-        bool                                     $isThrow = true
+        bool                                     $isThrow = true,
+        bool                                     $redefine = false
     ): static
     {
         $keys                       = is_array($interface) ? $interface : [$interface];
         $firstKey                   = array_shift($keys);
         
-        if(array_key_exists($firstKey, $this->bindings)) {
+        if(false === $redefine && array_key_exists($firstKey, $this->bindings)) {
             if($isThrow) {
                 throw new \InvalidArgumentException("Interface '$firstKey' already bound to '".$this->getKeyAsString($firstKey)."'");
             } else {
@@ -46,11 +47,20 @@ class ContainerBuilder              implements BuilderInterface
             }
         }
         
+        if($redefine && array_key_exists($firstKey, $this->bindings) && $this->bindings[$firstKey] instanceof AliasInitializer) {
+            $alias                  = $this->bindings[$firstKey]->alias;
+            
+            if($alias !== $firstKey) {
+                $keys[]             = $firstKey;
+                $firstKey           = $alias;
+            }
+        }
+        
         $this->bindings[$firstKey]  = $dependency;
         
         foreach ($keys as $key) {
             
-            if(array_key_exists($key, $this->bindings)) {
+            if(false === $redefine && array_key_exists($key, $this->bindings)) {
                 if($isThrow) {
                     throw new \InvalidArgumentException("Interface '$key' already bound to '".$this->getKeyAsString($key)."'");
                 } else {
@@ -65,29 +75,31 @@ class ContainerBuilder              implements BuilderInterface
     }
     
     #[\Override]
-    public function bindConstructible(array|string $interface, string $class, bool $isThrow = true): static
+    public function bindConstructible(array|string $interface, string $class, bool $isThrow = true, bool $redefine = false): static
     {
         return $this->bind(
             $interface,
             $this->useDeferredReflection ? new ConstructibleDependencyByReflection($class, true, $this->resolveScalarAsConfig) :
             new ConstructibleDependency($class, true, AttributesToDescriptors::readDescriptors($class, $this->resolveScalarAsConfig)),
-            $isThrow
+            $isThrow,
+            $redefine
         );
     }
     
     #[\Override]
-    public function bindInjectable(array|string $interface, string $class, bool $isThrow = true): static
+    public function bindInjectable(array|string $interface, string $class, bool $isThrow = true, bool $redefine = false): static
     {
         return $this->bind(
             $interface,
             $this->useDeferredReflection ? new ConstructibleDependencyByReflection($class, false, $this->resolveScalarAsConfig) :
             new ConstructibleDependency($class, false, AttributesToDescriptors::readDescriptors($class, $this->resolveScalarAsConfig)),
-            $isThrow
+            $isThrow,
+            $redefine
         );
     }
     
     #[\Override]
-    public function bindObject(array|string $interface, object $object, bool $isThrow = true): static
+    public function bindObject(array|string $interface, object $object, bool $isThrow = true, bool $redefine = false): static
     {
         if($object instanceof InitializerInterface || $object instanceof DependencyInterface) {
             throw new \InvalidArgumentException('Object cannot be used as dependency or initializer');
@@ -95,7 +107,7 @@ class ContainerBuilder              implements BuilderInterface
         
         foreach (is_array($interface) ? $interface : [$interface] as $key) {
             
-            if(array_key_exists($key, $this->bindings)) {
+            if(false === $redefine && array_key_exists($key, $this->bindings)) {
                 if($isThrow) {
                     throw new \InvalidArgumentException(
                         "Interface '$key' already bound to '".$this->getKeyAsString($key)."'"
@@ -109,6 +121,12 @@ class ContainerBuilder              implements BuilderInterface
         }
         
         return $this;
+    }
+    
+    #[\Override]
+    public function get(string $key): mixed
+    {
+        return $this->bindings[$key] ?? null;
     }
     
     #[\Override]

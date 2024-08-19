@@ -61,7 +61,7 @@ class ContainerBuilderTest extends TestCase
         $this->assertTrue($container->findKey('test') !== null);
     }
     
-    public function testSet()
+    public function testSet(): void
     {
         $builder                    = new ContainerBuilder();
         $builder->set('test', 'value');
@@ -71,7 +71,7 @@ class ContainerBuilderTest extends TestCase
         $this->assertEquals('value', $container->resolveDependency('test'));
     }
     
-    public function testBuildContainer()
+    public function testBuildContainer(): void
     {
         $builder                    = new ContainerBuilder();
         $resolver                   = $this->createMock(ResolverInterface::class);
@@ -80,11 +80,40 @@ class ContainerBuilderTest extends TestCase
         $this->assertInstanceOf(ContainerInterface::class, $container);
     }
     
-    public function testGetKeyAsString()
+    public function testGetKeyAsString(): void
     {
         $builder                    = new ContainerBuilder();
         
         $builder->bind('test', $this->createMock(DependencyInterface::class));
         $this->assertStringContainsString('object', $builder->getKeyAsString('test'));
+    }
+    
+    public function testRedefineWithError(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        
+        $builder                    = new ContainerBuilder();
+        $dependency1                = $this->createMock(DependencyInterface::class);
+        $dependency2                = $this->createMock(DependencyInterface::class);
+        
+        $builder->bind('test', $dependency1);
+        $builder->bind('test', $dependency2);
+    }
+    
+    public function testRedefine(): void
+    {
+        $builder                    = new ContainerBuilder();
+        $dependency1                = $this->createMock(DependencyInterface::class);
+        $dependency2                = $this->createMock(DependencyInterface::class);
+        
+        $builder->bind('test', $dependency1);
+        $this->assertTrue($builder->isBound('test'));
+        
+        $builder->bind('test', $dependency2, redefine: true);
+        $this->assertTrue($builder->isBound('test'));
+        $this->assertEquals($dependency2, $builder->get('test'));
+        
+        $container                  = $builder->buildContainer($this->createMock(ResolverInterface::class));
+        $this->assertTrue($container->findKey('test') !== null);
     }
 }
