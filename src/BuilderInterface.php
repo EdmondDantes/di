@@ -11,6 +11,7 @@ interface BuilderInterface
     public function bindConstructible(string|array $interface, string $class, bool $isThrow = true, bool $redefine = false): static;
     public function bindInjectable(string|array $interface, string $class, bool $isThrow = true, bool $redefine = false): static;
     public function bindObject(string|array $interface, object $object, bool $isThrow = true, bool $redefine = false): static;
+    public function bindSelfReference(string|array $interface = null, bool $isThrow = true, bool $redefine = false): static;
     public function get(string $key): mixed;
     public function set(string $key, mixed $value): static;
     

@@ -124,6 +124,26 @@ class ContainerBuilder              implements BuilderInterface
     }
     
     #[\Override]
+    public function bindSelfReference(
+        array|string $interface     = null,
+        bool         $isThrow       = true,
+        bool         $redefine      = false
+    ): static
+    {
+        if(null === $interface) {
+            $interface               = ContainerInterface::class;
+        }
+        
+        return $this->bind(
+            $interface,
+            new SelfReferenceInitializer,
+            $isThrow,
+            $redefine
+        );
+    }
+    
+    
+    #[\Override]
     public function get(string $key): mixed
     {
         return $this->bindings[$key] ?? null;
