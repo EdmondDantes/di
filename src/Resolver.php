@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
+use IfCastle\DI\Exceptions\DependencyNotFound;
+
 class Resolver                      implements ResolverInterface
 {
     /**
@@ -53,12 +55,19 @@ class Resolver                      implements ResolverInterface
         return $resolvedDependencies;
     }
     
+    /**
+     * @throws DependencyNotFound
+     */
     public static function resolve(ContainerInterface $container, DescriptorInterface $descriptor, DependencyInterface $forDependency): object|null
     {
         $object                 = $descriptor->getFactory()?->create($container, $descriptor, $forDependency);
         
         if($object !== null) {
             return $object;
+        }
+        
+        if($descriptor->isRequired()) {
+            throw new DependencyNotFound($descriptor, $container, $forDependency);
         }
         
         if($descriptor->getFactory() !== null) {
