@@ -37,19 +37,15 @@ class Resolver                      implements ResolverInterface
             // LazyLoad
             
             $containerRef           = \WeakReference::create($container);
-            $descriptorRef          = \WeakReference::create($descriptor);
-            $forDependencyRef       = \WeakReference::create($forDependency);
             
-            $resolvedDependencies[] = new LazyLoader(static function () use ($containerRef, $descriptorRef, $forDependencyRef) {
+            $resolvedDependencies[] = new LazyLoader(static function () use ($containerRef, $descriptor, $forDependency) {
                 $container          = $containerRef->get();
-                $descriptor         = $descriptorRef->get();
-                $dependency         = $forDependencyRef->get();
                 
-                if($container === null || $descriptor === null || $dependency === null) {
+                if($container === null) {
                     throw new \Error('container, descriptor or dependency is not available');
                 }
                 
-                return static::resolve($container, $descriptor, $dependency);
+                return static::resolve($container, $descriptor, $forDependency);
             });
         }
         

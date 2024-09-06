@@ -15,6 +15,10 @@ trait InjectorTrait
             }
             
             $this->$property = $dependencies[$property] ?? null;
+            
+            if($this->$property instanceof LazyLoader) {
+                $this->$property->setAfterHandler(fn($object) => $this->$property = $object);
+            }
         }
         
         return $this;

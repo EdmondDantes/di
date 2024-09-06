@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
+use IfCastle\DI\Dependencies\ClassWithLazyDependency;
 use IfCastle\DI\Dependencies\ClassWithNoExistDependency;
 use IfCastle\DI\Dependencies\UseConstructorClass;
 use IfCastle\DI\Dependencies\UseConstructorInterface;
@@ -21,6 +22,7 @@ class ContainerTest                 extends TestCase
         $builder->bindConstructible([UseConstructorInterface::class, 'alias1'], UseConstructorClass::class);
         $builder->bindInjectable([UseInjectableInterface::class, 'alias2'], UseInjectableClass::class);
         $builder->bindConstructible('wrong_dependency', ClassWithNoExistDependency::class);
+        $builder->bindConstructible('lazy_dependency', ClassWithLazyDependency::class);
         $builder->bindSelfReference();
         
         $this->container            = $builder->buildContainer(new Resolver);
@@ -76,6 +78,18 @@ class ContainerTest                 extends TestCase
         $result = $this->container->resolveDependency(ContainerInterface::class);
         
         $this->assertEquals($this->container, $result);
+    }
+    
+    public function testLazyLoad(): void
+    {
+        $result = $this->container->resolveDependency('lazy_dependency');
+        
+        $this->assertInstanceOf(ClassWithLazyDependency::class, $result);
+        $this->assertInstanceOf(LazyLoader::class, $result->some);
+        
+        $result->some->someMethod();
+        
+        $this->assertInstanceOf(UseConstructorClass::class, $result->some);
     }
     
     /**
