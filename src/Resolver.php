@@ -13,6 +13,7 @@ class Resolver                      implements ResolverInterface
      * @param DependencyInterface   $forDependency
      *
      * @return mixed[]
+     * @throws DependencyNotFound
      */
     public static function resolveDependencies(ContainerInterface $container, array $dependencies, DependencyInterface $forDependency): array
     {
@@ -58,7 +59,12 @@ class Resolver                      implements ResolverInterface
     /**
      * @throws DependencyNotFound
      */
-    public static function resolve(ContainerInterface $container, DescriptorInterface $descriptor, DependencyInterface $forDependency): object|null
+    public static function resolve(
+        ContainerInterface  $container,
+        DescriptorInterface $descriptor,
+        DependencyInterface $forDependency,
+        int                 $stackOffset = 0
+    ): object|null
     {
         $object                 = $descriptor->getFactory()?->create($container, $descriptor, $forDependency);
         
@@ -66,15 +72,11 @@ class Resolver                      implements ResolverInterface
             return $object;
         }
         
-        if($descriptor->isRequired()) {
-            throw new DependencyNotFound($descriptor, $container, $forDependency);
-        }
-        
         if($descriptor->getFactory() !== null) {
             return null;
         }
         
-        return $container->resolveDependency($descriptor, $forDependency);
+        return $container->resolveDependency($descriptor, $forDependency, $stackOffset + 5);
     }
     
     #[\Override]
@@ -104,6 +106,8 @@ class Resolver                      implements ResolverInterface
         
         if($object instanceof InjectableInterface) {
             return $object->injectDependencies($dependencies, $self)->initializeAfterInject();
+        } elseif($object instanceof AutoResolverInterface) {
+            $object->resolveDependencies($container);
         }
         
         return $object;

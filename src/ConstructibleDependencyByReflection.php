@@ -14,6 +14,12 @@ final class ConstructibleDependencyByReflection implements DependencyInterface, 
     ) {}
     
     #[\Override]
+    public function getDependencyName(): string
+    {
+        return $this->className;
+    }
+    
+    #[\Override]
     public function getClassName(): string
     {
         return $this->className;

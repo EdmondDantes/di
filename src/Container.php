@@ -32,12 +32,12 @@ class Container                     implements NestedContainerInterface, Disposa
     }
     
     #[\Override]
-    public function resolveDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null): mixed
+    public function resolveDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null, int $stackOffset = 0): mixed
     {
         $dependency                 = $this->findDependency($name, $forDependency);
         
         if(null === $dependency) {
-            throw new DependencyNotFound($name, $this, $forDependency);
+            throw new DependencyNotFound($name, $this, $forDependency, $stackOffset + 3);
         }
         
         if($dependency instanceof \Throwable) {

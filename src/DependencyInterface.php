@@ -5,6 +5,8 @@ namespace IfCastle\DI;
 
 interface DependencyInterface
 {
+    public function getDependencyName(): string;
+    
     /**
      * @return DescriptorInterface[]
      */

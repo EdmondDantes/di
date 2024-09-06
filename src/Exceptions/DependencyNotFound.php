@@ -12,31 +12,37 @@ class DependencyNotFound            extends \Exception
     public function __construct(string|DescriptorInterface $name,
                                 ContainerInterface $container,
                                 DependencyInterface $forDependency = null,
+                                int $stackOffset = 4,
                                 ?\Throwable $previous = null
     )
     {
         
-        parent::__construct($this->generateMessage($name, $container, $forDependency), 0, $previous);
+        parent::__construct($this->generateMessage($name, $container, $forDependency, $stackOffset), 0, $previous);
     }
     
-    protected function generateMessage(string|DescriptorInterface $name, ContainerInterface $container, DependencyInterface $forDependency = null): string
+    protected function generateMessage(string|DescriptorInterface $name, ContainerInterface $container, DependencyInterface $forDependency = null, int $stackOffset = 4): string
     {
         $requiredBy                 = '';
         $file                       = '';
         $line                       = '';
         $key                        = $name instanceof DescriptorInterface ? $name->getDependencyKey() : $name;
-        $forDependency              = $forDependency !== null ? $forDependency::class : '';
+        $forDependency              = $forDependency !== null ? $forDependency->getDependencyName() : '';
         $container                  = $container->getContainerLabel();
         
-        $backtrace                  = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4);
+        $backtrace                  = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $stackOffset + 1);
+        $withFactory                = '';
         
-        if(isset($backtrace[3]) && $backtrace[3] !== []) {
-            $requiredBy             = $backtrace[3]['class'] ?? ''.$backtrace[3]['type'] ?? ''.$backtrace[3]['function'] ?? '';
-            $file                   = $backtrace[2]['file'] ?? '';
-            $line                   = $backtrace[2]['line'] ?? '';
+        if($name instanceof DescriptorInterface && $name->getFactory() !== null) {
+            $withFactory            = ' with Factory: \''.get_debug_type($name->getFactory()).'\'';
+        }
+        
+        if(isset($backtrace[$stackOffset]) && $backtrace[$stackOffset] !== []) {
+            $requiredBy             = $backtrace[$stackOffset]['class'] ?? ''.$backtrace[$stackOffset]['type'] ?? ''.$backtrace[$stackOffset]['function'] ?? '';
+            $file                   = $backtrace[$stackOffset - 1]['file'] ?? '';
+            $line                   = $backtrace[$stackOffset - 1]['line'] ?? '';
         }
 
-        return "The dependency '$key' is not found in container '$container', required at $file:$line by $requiredBy, '$forDependency'";
+        return "The dependency '$key'$withFactory is not found in container '$container', required at $file:$line by $requiredBy, '$forDependency'";
     }
     
 }

@@ -10,7 +10,7 @@ interface ContainerInterface
     /**
      * @throws DependencyNotFound
      */
-    public function resolveDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null): mixed;
+    public function resolveDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null, int $stackOffset = 0): mixed;
     public function findDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null): mixed;
     public function getDependencyIfInitialized(string|DescriptorInterface $name): mixed;
     public function hasDependency(string|DescriptorInterface $key): bool;
