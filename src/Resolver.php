@@ -64,7 +64,7 @@ class Resolver                      implements ResolverInterface
         DescriptorInterface $descriptor,
         DependencyInterface $forDependency,
         int                 $stackOffset = 0
-    ): object|null
+    ): mixed
     {
         $object                 = $descriptor->getFactory()?->create($container, $descriptor, $forDependency);
         
