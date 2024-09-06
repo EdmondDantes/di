@@ -37,6 +37,11 @@ class Container                     implements NestedContainerInterface, Disposa
         $dependency                 = $this->findDependency($name, $forDependency);
         
         if(null === $dependency) {
+            
+            if($name instanceof DescriptorInterface && false === $name->isRequired()) {
+                return null;
+            }
+            
             throw new DependencyNotFound($name, $this, $forDependency, $stackOffset + 3);
         }
         
@@ -66,6 +71,11 @@ class Container                     implements NestedContainerInterface, Disposa
             
             try {
                 $this->container[$key] = $dependency->executeInitializer($this);
+                
+                if($this->container[$key] instanceof \WeakReference) {
+                    return $this->container[$key]->get();
+                }
+                
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;

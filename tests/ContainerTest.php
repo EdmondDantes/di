@@ -21,6 +21,7 @@ class ContainerTest                 extends TestCase
         $builder->bindConstructible([UseConstructorInterface::class, 'alias1'], UseConstructorClass::class);
         $builder->bindInjectable([UseInjectableInterface::class, 'alias2'], UseInjectableClass::class);
         $builder->bindConstructible('wrong_dependency', ClassWithNoExistDependency::class);
+        $builder->bindSelfReference();
         
         $this->container            = $builder->buildContainer(new Resolver);
     }
@@ -62,6 +63,19 @@ class ContainerTest                 extends TestCase
         } catch (DependencyNotFound $exception) {
             $this->assertStringContainsString(__FILE__.':'.__LINE__ - 2, $exception->getMessage());
         }
+    }
+    
+    public function testResolveNotRequiredDependency(): void
+    {
+        $result = $this->container->resolveDependency(new Dependency('non-existent', null, false));
+        $this->assertNull($result);
+    }
+    
+    public function testSelfReference(): void
+    {
+        $result = $this->container->resolveDependency(ContainerInterface::class);
+        
+        $this->assertEquals($this->container, $result);
     }
     
     /**
