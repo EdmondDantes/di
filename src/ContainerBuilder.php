@@ -77,6 +77,12 @@ class ContainerBuilder              implements BuilderInterface
     #[\Override]
     public function bindConstructible(array|string $interface, string $class, bool $isThrow = true, bool $redefine = false): static
     {
+        // special case: AutoResolverInterface
+        if(is_subclass_of($class, AutoResolverInterface::class)) {
+            throw new \InvalidArgumentException('AutoResolverInterface cannot be used as constructible dependency.'
+                                                .' Please, use bindInjectable instead.');
+        }
+        
         return $this->bind(
             $interface,
             $this->useDeferredReflection ? new ConstructibleDependencyByReflection($class, true, $this->resolveScalarAsConfig) :
