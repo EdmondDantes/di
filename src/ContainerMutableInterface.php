@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
-interface ContainerMutableInterface
+interface ContainerMutableInterface extends ContainerInterface
 {
     public function set(string $key, mixed $value): static;
     
