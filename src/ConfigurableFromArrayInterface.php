@@ -12,5 +12,5 @@ namespace IfCastle\DI;
  */
 interface ConfigurableFromArrayInterface
 {
-    public function applyConfigArray(array $config): void;
+    public function configureFromArray(array $config): void;
 }
