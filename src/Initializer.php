@@ -25,7 +25,7 @@ final class Initializer             implements InitializerInterface, DisposableI
         
         $this->handler              = null;
         
-        return $handler();
+        return $handler($container);
     }
     
     #[\Override]

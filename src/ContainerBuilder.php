@@ -148,6 +148,21 @@ class ContainerBuilder              implements BuilderInterface
         );
     }
     
+    #[\Override]
+    public function bindInitializer(
+        array|string $interface,
+        callable     $initializer,
+        bool         $isThrow       = true,
+        bool         $redefine      = false
+    ): static
+    {
+        return $this->bind(
+            $interface,
+            new Initializer($initializer),
+            $isThrow,
+            $redefine
+        );
+    }
     
     #[\Override]
     public function get(string $key): mixed
