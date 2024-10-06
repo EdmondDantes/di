@@ -192,4 +192,9 @@ class Container                     implements NestedContainerInterface, Disposa
             throw new \Error('Multiple errors occurred during disposal');
         }
     }
+    
+    protected function redefineParentContainer(ContainerInterface $parentContainer = null, bool $isWeakParent = false): void
+    {
+        $this->parentContainer  = $isWeakParent ? \WeakReference::create($parentContainer) : $parentContainer;
+    }
 }
