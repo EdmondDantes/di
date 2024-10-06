@@ -195,6 +195,11 @@ class Container                     implements NestedContainerInterface, Disposa
     
     protected function redefineParentContainer(ContainerInterface $parentContainer = null, bool $isWeakParent = false): void
     {
+        if($parentContainer === null) {
+            $this->parentContainer  = null;
+            return;
+        }
+        
         $this->parentContainer  = $isWeakParent ? \WeakReference::create($parentContainer) : $parentContainer;
     }
 }
