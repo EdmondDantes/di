@@ -92,6 +92,11 @@ class AttributesToDescriptors
         
         $descriptor->isLazy     = is_array($descriptor->type) && in_array(LazyLoader::class, $descriptor->type, true);
         
+        if($parameter->isDefaultValueAvailable()) {
+            $descriptor->hasDefaultValue    = true;
+            $descriptor->defaultValue       = $parameter->getDefaultValue();
+        }
+        
         return $descriptor;
     }
     
@@ -135,6 +140,11 @@ class AttributesToDescriptors
         
         $descriptor->isRequired = false === ($property->hasDefaultValue() || $property->getType()?->allowsNull());
         $descriptor->isLazy     = is_array($descriptor->type) && in_array(LazyLoader::class, $descriptor->type, true);
+        
+        if($property->hasDefaultValue()) {
+            $descriptor->hasDefaultValue    = true;
+            $descriptor->defaultValue       = $property->getDefaultValue();
+        }
         
         return $descriptor;
     }

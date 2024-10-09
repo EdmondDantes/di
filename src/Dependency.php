@@ -14,6 +14,8 @@ class Dependency implements DescriptorInterface
         public bool $isRequired          = true,
         public bool $isLazy              = false,
         public string $property          = '',
+        public bool $hasDefaultValue     = false,
+        public mixed $defaultValue       = null
     ) {}
     
     #[\Override]
@@ -50,5 +52,17 @@ class Dependency implements DescriptorInterface
     public function getFactory(): FactoryInterface|null
     {
         return null;
+    }
+    
+    #[\Override]
+    public function hasDefaultValue(): bool
+    {
+        return $this->hasDefaultValue;
+    }
+    
+    #[\Override]
+    public function getDefaultValue(): mixed
+    {
+        return $this->defaultValue;
     }
 }

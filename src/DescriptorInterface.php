@@ -11,4 +11,6 @@ interface DescriptorInterface
     public function isRequired(): bool;
     public function isLazy(): bool;
     public function getFactory(): FactoryInterface|null;
+    public function hasDefaultValue(): bool;
+    public function getDefaultValue(): mixed;
 }

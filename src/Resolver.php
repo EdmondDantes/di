@@ -69,6 +69,15 @@ class Resolver                      implements ResolverInterface
         }
         
         if($descriptor->getFactory() !== null) {
+            
+            if($descriptor->hasDefaultValue()) {
+                return $descriptor->getDefaultValue();
+            }
+            
+            if($descriptor->isRequired()) {
+                throw new DependencyNotFound($descriptor, $container, $forDependency, $stackOffset + 4);
+            }
+            
             return null;
         }
         
