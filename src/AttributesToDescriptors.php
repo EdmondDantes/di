@@ -231,9 +231,7 @@ class AttributesToDescriptors
     }
     
     /**
-     * @param mixed            $descriptor
      * @param \ReflectionClass<object> $reflectionClass
-     *
      * @return void
      */
     protected static function handleConfigSection(mixed $descriptor, \ReflectionClass $reflectionClass): void

@@ -14,6 +14,7 @@ use IfCastle\DI\Exceptions\DependencyNotFound;
 final class AliasInitializer implements InitializerInterface
 {
     private bool $wasCalled = false;
+    
     /**
      * @var \WeakReference<object>|scalar|array<scalar>|null
      */
@@ -53,11 +54,7 @@ final class AliasInitializer implements InitializerInterface
                                     $container->resolveDependency($this->alias) :
                                     $container->findDependency($this->alias);
 
-        if(is_object($dependency)) {
-            $this->dependency       = \WeakReference::create($dependency);
-        } else {
-            $this->dependency       = $dependency;
-        }
+        $this->dependency = is_object($dependency) ? \WeakReference::create($dependency) : $dependency;
 
         return $dependency;
     }

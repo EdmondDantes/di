@@ -24,9 +24,7 @@ final class LazyLoader
     }
 
     /**
-     * @param mixed $method
      * @param mixed[] $arguments
-     *
      * @return mixed
      */
     final public function __call(mixed $method = null, array $arguments = []): mixed
