@@ -8,10 +8,12 @@ use IfCastle\DI\Exceptions\DependencyNotFound;
 
 class Container implements NestedContainerInterface, DisposableInterface
 {
+    /** @var \WeakReference<ContainerInterface>|ContainerInterface|null */
     private \WeakReference|ContainerInterface|null $parentContainer = null;
 
     public function __construct(
         protected ResolverInterface $resolver,
+        /** @var array<class-string|string, mixed> */
         protected array $container  = [],
         ?ContainerInterface $parentContainer = null,
         bool $isWeakParent          = false
