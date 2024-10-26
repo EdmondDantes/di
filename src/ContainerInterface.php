@@ -14,8 +14,6 @@ interface ContainerInterface
     /**
      * @template Class
      * @param class-string<Class>|string|DescriptorInterface $name
-     * @param DependencyInterface|null                   $forDependency
-     * @param int                                        $stackOffset
      *
      * @return ($name is class-string ? Class : scalar|array<scalar>|null)
      * @throws DependencyNotFound
@@ -26,7 +24,6 @@ interface ContainerInterface
      * @template Class
      *
      * @param class-string<Class>|string|DescriptorInterface    $name
-     * @param DependencyInterface|null                          $forDependency
      *
      * @return ($name is class-string ? Class|null : scalar|array<scalar>|null)
      */
@@ -42,15 +39,11 @@ interface ContainerInterface
     
     /**
      * @param class-string|string|DescriptorInterface $key
-     *
-     * @return bool
      */
     public function hasDependency(string|DescriptorInterface $key): bool;
     
     /**
      * @param class-string|string|DescriptorInterface $key
-     *
-     * @return mixed
      */
     public function findKey(string|DescriptorInterface $key): mixed;
 
