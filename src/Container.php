@@ -1,182 +1,182 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
 
 use IfCastle\DI\Exceptions\DependencyNotFound;
 
-class Container                     implements NestedContainerInterface, DisposableInterface
+class Container implements NestedContainerInterface, DisposableInterface
 {
     private \WeakReference|ContainerInterface|null $parentContainer = null;
-    
+
     public function __construct(
         protected ResolverInterface $resolver,
         protected array $container  = [],
-        ContainerInterface $parentContainer = null,
+        ?ContainerInterface $parentContainer = null,
         bool $isWeakParent          = false
-    )
-    {
-        if(null !== $parentContainer) {
+    ) {
+        if (null !== $parentContainer) {
             $this->parentContainer  = $isWeakParent ? \WeakReference::create($parentContainer) : $parentContainer;
         }
     }
-    
+
     #[\Override]
     public function getParentContainer(): ContainerInterface|null
     {
-        if($this->parentContainer instanceof \WeakReference) {
+        if ($this->parentContainer instanceof \WeakReference) {
             return $this->parentContainer->get();
         }
-        
+
         return $this->parentContainer;
     }
-    
+
     #[\Override]
-    public function resolveDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null, int $stackOffset = 0): mixed
+    public function resolveDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, int $stackOffset = 0): mixed
     {
         $dependency                 = $this->findDependency($name, $forDependency);
-        
-        if(null === $dependency) {
-            
-            if($name instanceof DescriptorInterface && false === $name->isRequired()) {
+
+        if (null === $dependency) {
+
+            if ($name instanceof DescriptorInterface && false === $name->isRequired()) {
                 return null;
             }
-            
+
             throw new DependencyNotFound($name, $this, $forDependency, $stackOffset + 3);
         }
-        
-        if($dependency instanceof \Throwable) {
+
+        if ($dependency instanceof \Throwable) {
             throw $dependency;
         }
-        
+
         return $dependency;
     }
-    
+
     #[\Override]
-    public function findDependency(string|DescriptorInterface $name, DependencyInterface $forDependency = null): mixed
+    public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null): mixed
     {
         $key                        = $this->findKey($name);
-        
-        if(null === $key) {
+
+        if (null === $key) {
             return $this->getParentContainer()?->findDependency($name, $forDependency);
         }
-        
+
         $dependency                 = $this->container[$key];
-        
-        if($dependency instanceof \Throwable) {
+
+        if ($dependency instanceof \Throwable) {
             return $dependency;
         }
-        
-        if($dependency instanceof InitializerInterface) {
-            
+
+        if ($dependency instanceof InitializerInterface) {
+
             try {
                 $this->container[$key] = $dependency->executeInitializer($this);
-                
-                if($this->container[$key] instanceof \WeakReference) {
+
+                if ($this->container[$key] instanceof \WeakReference) {
                     return $this->container[$key]->get();
                 }
-                
+
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;
                 return $exception;
             }
         }
-        
-        if($dependency instanceof \WeakReference) {
+
+        if ($dependency instanceof \WeakReference) {
             return $dependency->get();
         }
-        
-        if(false === $dependency instanceof DependencyInterface) {
+
+        if (false === $dependency instanceof DependencyInterface) {
             return $dependency;
         }
-        
-        if($this->resolver->canResolveDependency($dependency, $this)) {
-            
+
+        if ($this->resolver->canResolveDependency($dependency, $this)) {
+
             try {
                 $this->container[$key] = $this->resolver->resolveDependency($dependency, $this);
-                
-                if($this->container[$key] instanceof \WeakReference) {
+
+                if ($this->container[$key] instanceof \WeakReference) {
                     return $this->container[$key]->get();
                 }
-                
+
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;
                 return $exception;
             }
         }
-        
+
         return null;
     }
-    
+
     #[\Override]
     public function getDependencyIfInitialized(string|DescriptorInterface $name): mixed
     {
         $key                        = $this->findKey($name);
-        
-        if(null === $key) {
+
+        if (null === $key) {
             return $this->getParentContainer()?->getDependencyIfInitialized($name);
         }
-        
+
         $dependency                 = $this->container[$key];
-        
-        if($dependency instanceof \Throwable) {
+
+        if ($dependency instanceof \Throwable) {
             return $dependency;
         }
-        
-        if($dependency instanceof InitializerInterface || $dependency instanceof DependencyInterface) {
+
+        if ($dependency instanceof InitializerInterface || $dependency instanceof DependencyInterface) {
             return null;
         }
-        
+
         return $dependency;
     }
-    
+
     #[\Override]
-    public function hasDependency(string|DescriptorInterface $key) : bool
+    public function hasDependency(string|DescriptorInterface $key): bool
     {
         if ($this->findKey($key) !== null) {
             return true;
         }
         return $this->getParentContainer()?->hasDependency($key) ?? false;
     }
-    
+
     #[\Override]
     public function findKey(DescriptorInterface|string $key): string|null
     {
-        if (is_string($key) && array_key_exists($key, $this->container)) {
+        if (\is_string($key) && \array_key_exists($key, $this->container)) {
             return $key;
         }
-        if (is_string($key)) {
+        if (\is_string($key)) {
             return null;
         }
-        
+
         $type                   = $key->getDependencyType();
-        
-        foreach(array_merge([$key->getDependencyKey()], is_array($type) ? $type : [$type]) as $key) {
-            if(array_key_exists($key, $this->container)) {
+
+        foreach (\array_merge([$key->getDependencyKey()], \is_array($type) ? $type : [$type]) as $key) {
+            if (\array_key_exists($key, $this->container)) {
                 return $key;
             }
         }
 
         return null;
     }
-    
+
     #[\Override]
     public function getContainerLabel(): string
     {
         return 'container';
     }
-    
+
     #[\Override]
     public function dispose(): void
     {
         $container                  = $this->container;
         $this->container            = [];
         $errors                     = [];
-        
-        foreach($container as $key => $dependency) {
-            if($dependency instanceof DisposableInterface) {
+
+        foreach ($container as $key => $dependency) {
+            if ($dependency instanceof DisposableInterface) {
                 try {
                     $dependency->dispose();
                 } catch (\Throwable $exception) {
@@ -184,22 +184,22 @@ class Container                     implements NestedContainerInterface, Disposa
                 }
             }
         }
-        if (count($errors) === 1) {
-            throw array_pop($errors);
+        if (\count($errors) === 1) {
+            throw \array_pop($errors);
         }
-        
-        if (count($errors) > 1) {
+
+        if (\count($errors) > 1) {
             throw new \Error('Multiple errors occurred during disposal');
         }
     }
-    
-    protected function redefineParentContainer(ContainerInterface $parentContainer = null, bool $isWeakParent = false): void
+
+    protected function redefineParentContainer(?ContainerInterface $parentContainer = null, bool $isWeakParent = false): void
     {
-        if($parentContainer === null) {
+        if ($parentContainer === null) {
             $this->parentContainer  = null;
             return;
         }
-        
+
         $this->parentContainer  = $isWeakParent ? \WeakReference::create($parentContainer) : $parentContainer;
     }
 }

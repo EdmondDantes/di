@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
 
 /**
- * Interface ConfigurableFromArrayInterface
+ * Interface ConfigurableFromArrayInterface.
  *
  * Used to apply configuration from an array.
  *

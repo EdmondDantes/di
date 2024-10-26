@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
@@ -13,8 +14,8 @@ namespace IfCastle\DI;
 interface ComponentRegistryInterface
 {
     public function getComponentNames(): array;
-    
+
     public function getComponentConfig(string $componentName): ConfigInterface;
-    
+
     public function findComponentConfig(string $componentName): ConfigInterface|null;
 }

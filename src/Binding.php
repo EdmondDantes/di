@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
@@ -12,7 +13,7 @@ use Attribute;
 final readonly class Binding
 {
     public readonly array $interfaces;
-    
+
     public function __construct(string ...$interfaces)
     {
         $this->interfaces           = $interfaces;

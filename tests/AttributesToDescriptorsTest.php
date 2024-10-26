@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
@@ -14,11 +15,11 @@ class AttributesToDescriptorsTest extends TestCase
     public function testParameterToDescriptor(): void
     {
         $descriptors                = AttributesToDescriptors::readDescriptors(SomeClass::class);
-        
+
         $this->assertIsArray($descriptors);
-        
+
         $descriptor                 = $descriptors[0];
-        
+
         $this->assertInstanceOf(DescriptorInterface::class, $descriptor);
         $this->assertInstanceOf(Dependency::class, $descriptor);
         $this->assertEquals('some', $descriptor->key);
@@ -27,16 +28,16 @@ class AttributesToDescriptorsTest extends TestCase
         $this->assertEquals('', $descriptor->property);
         $this->assertFalse($descriptor->isLazy);
     }
-    
+
     public function testPropertyToDescriptor(): void
     {
         $descriptors                = AttributesToDescriptors::readDescriptors(InjectableClass::class);
-        
+
         $this->assertIsArray($descriptors);
         $this->assertCount(3, $descriptors);
-        
+
         $required                   = $descriptors[0];
-        
+
         $this->assertInstanceOf(DescriptorInterface::class, $required);
         $this->assertInstanceOf(Dependency::class, $required);
         $this->assertEquals('required', $required->key);
@@ -44,9 +45,9 @@ class AttributesToDescriptorsTest extends TestCase
         $this->assertTrue($required->isRequired);
         $this->assertEquals('required', $required->property);
         $this->assertFalse($required->isLazy);
-        
+
         $optional                   = $descriptors[1];
-        
+
         $this->assertInstanceOf(DescriptorInterface::class, $optional);
         $this->assertInstanceOf(Dependency::class, $optional);
         $this->assertEquals('optional', $optional->key);
@@ -54,9 +55,9 @@ class AttributesToDescriptorsTest extends TestCase
         $this->assertFalse($optional->isRequired);
         $this->assertEquals('optional', $optional->property);
         $this->assertFalse($optional->isLazy);
-        
+
         $lazy                       = $descriptors[2];
-        
+
         $this->assertInstanceOf(DescriptorInterface::class, $lazy);
         $this->assertInstanceOf(Dependency::class, $lazy);
         $this->assertEquals('lazy', $lazy->key);
@@ -65,18 +66,18 @@ class AttributesToDescriptorsTest extends TestCase
         $this->assertEquals('lazy', $lazy->property);
         $this->assertTrue($lazy->isLazy);
     }
-    
+
     public function testScalarParameters(): void
     {
         $descriptors                = AttributesToDescriptors::readDescriptors(ClassWithScalarDependencies::class);
-        
+
         $this->assertIsArray($descriptors);
-        
+
         foreach ($descriptors as $descriptor) {
             $this->assertInstanceOf(DescriptorInterface::class, $descriptor);
             $this->assertInstanceOf(Dependency::class, $descriptor);
             $this->assertInstanceOf(FromConfig::class, $descriptor);
-            
+
             $this->assertStringContainsString('class_with_scalar_dependencies', $descriptor->getKey());
         }
     }

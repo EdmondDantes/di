@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI\Dependencies;
@@ -9,9 +10,8 @@ class ClassWithLazyDependency
 {
     public function __construct(
         public UseConstructorInterface|LazyLoader $some,
-    )
-    {
-        if($this->some instanceof LazyLoader) {
+    ) {
+        if ($this->some instanceof LazyLoader) {
             $this->some->setAfterHandler(fn($object) => $this->some = $object);
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
@@ -10,14 +11,14 @@ final class SelfReferenceInitializer implements InitializerInterface
     {
         return false;
     }
-    
+
     #[\Override]
-    public function executeInitializer(ContainerInterface $container = null): mixed
+    public function executeInitializer(?ContainerInterface $container = null): mixed
     {
-        if($container === null) {
+        if ($container === null) {
             return null;
         }
-        
+
         return \WeakReference::create($container);
     }
 }

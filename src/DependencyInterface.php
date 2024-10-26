@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
@@ -6,7 +7,7 @@ namespace IfCastle\DI;
 interface DependencyInterface
 {
     public function getDependencyName(): string;
-    
+
     /**
      * @return DescriptorInterface[]
      */

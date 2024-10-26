@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IfCastle\DI;
 
 /**
- * ## Container for InitializerInterface
+ * ## Container for InitializerInterface.
  *
  * ### Usage
  * For lazy object initialization
@@ -20,14 +21,13 @@ namespace IfCastle\DI;
 interface InitializerInterface
 {
     /**
-     * ## Check if the initializer has been called
+     * ## Check if the initializer has been called.
      */
     public function wasCalled(): bool;
-    
+
     /**
-     * ## Execute the initializer
+     * ## Execute the initializer.
      *
-     * @param ContainerInterface|null $container
      */
-    public function executeInitializer(ContainerInterface $container = null): mixed;
+    public function executeInitializer(?ContainerInterface $container = null): mixed;
 }
