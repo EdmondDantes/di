@@ -11,16 +11,19 @@ final class UseInjectableClass implements UseInjectableInterface, InjectableInte
 {
     public static string $data = '';
 
+    #[\Override]
     public function injectDependencies(array $dependencies, DependencyInterface $self): static
     {
         return $this;
     }
 
+    #[\Override]
     public function initializeAfterInject(): static
     {
         return $this;
     }
 
+    #[\Override]
     public function someMethod2(): void
     {
         self::$data = 'someMethod2';

@@ -10,11 +10,7 @@ class AttributesToDescriptors
 {
     public static function readDescriptors(object|string $object, bool $resolveScalarAsConfig = true): array
     {
-        if ($object instanceof \ReflectionClass) {
-            $reflection             = $object;
-        } else {
-            $reflection             = new \ReflectionClass($object);
-        }
+        $reflection = $object instanceof \ReflectionClass ? $object : new \ReflectionClass($object);
 
         if (false === $reflection->implementsInterface(InjectableInterface::class)) {
 
@@ -57,7 +53,7 @@ class AttributesToDescriptors
     ): DescriptorInterface {
         $attributes             = $parameter->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
 
-        if (!empty($attributes)) {
+        if ($attributes !== []) {
             $attribute          = $attributes[0];
             $descriptor         = $attribute->newInstance();
         } else {
@@ -106,7 +102,7 @@ class AttributesToDescriptors
     ): DescriptorInterface {
         $attributes             = $property->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
 
-        if (!empty($attributes)) {
+        if ($attributes !== []) {
             $attribute          = $attributes[0];
             $descriptor         = $attribute->newInstance();
         } else {

@@ -10,6 +10,7 @@ final class LazyLoader
      * @var callable|null
      */
     private $initializer;
+    
     private mixed $afterHandler;
 
     final public function __construct(callable $initializer)
@@ -27,6 +28,7 @@ final class LazyLoader
         // destroy initializer
         $initializer        = $this->initializer;
         $this->initializer  = null;
+        
         $afterHandler       = $this->afterHandler;
         $this->afterHandler = null;
 

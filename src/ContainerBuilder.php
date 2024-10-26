@@ -43,6 +43,7 @@ class ContainerBuilder implements BuilderInterface
             if ($isThrow) {
                 throw new \InvalidArgumentException("Interface '$firstKey' already bound to '" . $this->getKeyAsString($firstKey) . "'");
             }
+            
             return $this;
 
         }
@@ -64,6 +65,7 @@ class ContainerBuilder implements BuilderInterface
                 if ($isThrow) {
                     throw new \InvalidArgumentException("Interface '$key' already bound to '" . $this->getKeyAsString($key) . "'");
                 }
+                
                 continue;
 
             }
@@ -119,6 +121,7 @@ class ContainerBuilder implements BuilderInterface
                         "Interface '$key' already bound to '" . $this->getKeyAsString($key) . "'"
                     );
                 }
+                
                 continue;
 
             }
@@ -213,8 +216,9 @@ class ContainerBuilder implements BuilderInterface
         if ($value instanceof ConstructibleInterface) {
             return 'dependency: ' . $value->getClassName();
         } elseif (\is_object($value)) {
-            return 'object: ' . \get_class($value);
+            return 'object: ' . $value::class;
         }
+        
         return 'type: ' . \get_debug_type($value);
 
     }

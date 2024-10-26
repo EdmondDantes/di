@@ -17,7 +17,8 @@ class ContainerTest extends TestCase
 {
     protected Container $container;
 
-    public function setUp(): void
+    #[\Override]
+    protected function setUp(): void
     {
         $builder                    = new ContainerBuilder();
         $builder->bindConstructible([UseConstructorInterface::class, 'alias1'], UseConstructorClass::class);
