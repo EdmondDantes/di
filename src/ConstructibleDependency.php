@@ -6,6 +6,13 @@ namespace IfCastle\DI;
 
 final readonly class ConstructibleDependency implements DependencyInterface, ConstructibleInterface
 {
+    /**
+     * ConstructibleDependency constructor.
+     *
+     * @param string $className
+     * @param bool   $useConstructor
+     * @param DescriptorInterface[] $descriptors
+     */
     public function __construct(
         private string $className,
         private bool   $useConstructor = true,

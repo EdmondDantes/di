@@ -8,6 +8,10 @@ use IfCastle\DI\Exceptions\InjectionNotPossible;
 
 class AttributesToDescriptors
 {
+    /**
+     * @throws \ReflectionException
+     * @return DescriptorInterface[]
+     */
     public static function readDescriptors(object|string $object, bool $resolveScalarAsConfig = true): array
     {
         $reflection = $object instanceof \ReflectionClass ? $object : new \ReflectionClass($object);
@@ -44,7 +48,13 @@ class AttributesToDescriptors
 
         return $descriptors;
     }
-
+    
+    /**
+     * @param \ReflectionClass<object>     $reflectionClass
+     *
+     * @return DescriptorInterface
+     * @throws InjectionNotPossible
+     */
     protected static function parameterToDescriptor(
         \ReflectionClass     $reflectionClass,
         \ReflectionParameter $parameter,
@@ -94,6 +104,12 @@ class AttributesToDescriptors
         return $descriptor;
     }
 
+    /**
+     * @param \ReflectionClass<object>     $reflectionClass
+     *
+     * @return DescriptorInterface
+     * @throws InjectionNotPossible
+     */
     protected static function propertyToDescriptor(
         \ReflectionClass    $reflectionClass,
         \ReflectionProperty $property,
@@ -109,7 +125,7 @@ class AttributesToDescriptors
             $descriptor         = new Dependency();
         }
 
-        if ($descriptor instanceof DescriptorInterface === false) {
+        if ($descriptor instanceof Dependency === false) {
             throw new \Error('Attribute is not an instance of Dependency');
         }
 
@@ -143,6 +159,7 @@ class AttributesToDescriptors
     }
 
     /**
+     * @return string|string[]|null
      * @throws InjectionNotPossible
      */
     protected static function defineType(mixed $type, object|string $object): string|array|null
@@ -179,6 +196,7 @@ class AttributesToDescriptors
     }
 
     /**
+     * @return string[]
      * @throws InjectionNotPossible
      */
     protected static function defineUnionType(\ReflectionUnionType $unionType, object|string $object): array
@@ -189,7 +207,7 @@ class AttributesToDescriptors
             if ($type instanceof \ReflectionNamedType) {
                 $types[]        = self::defineNamedType($type, $object);
             } else {
-                throw new InjectionNotPossible($object, $type->getName(), 'object');
+                throw new InjectionNotPossible($object, $type::class, 'object');
             }
         }
 
@@ -211,7 +229,13 @@ class AttributesToDescriptors
 
         throw new InjectionNotPossible($object, 'intersection type', 'object');
     }
-
+    
+    /**
+     * @param mixed            $descriptor
+     * @param \ReflectionClass<object> $reflectionClass
+     *
+     * @return void
+     */
     protected static function handleConfigSection(mixed $descriptor, \ReflectionClass $reflectionClass): void
     {
         if ($descriptor instanceof FromConfig) {
@@ -222,7 +246,12 @@ class AttributesToDescriptors
             }
         }
     }
-
+    
+    /**
+     * @param string[]|string|null $type
+     *
+     * @return bool
+     */
     protected static function isScalarType(array|string|null $type): bool
     {
         if (null === $type) {

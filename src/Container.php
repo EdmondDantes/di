@@ -13,7 +13,7 @@ class Container implements NestedContainerInterface, DisposableInterface
 
     public function __construct(
         protected ResolverInterface $resolver,
-        /** @var array<class-string|string, mixed> */
+        /** @var array<class-string|string, DependencyInterface|InitializerInterface|object|\Throwable|\WeakReference|scalar|null> */
         protected array $container  = [],
         ?ContainerInterface $parentContainer = null,
         bool $isWeakParent          = false

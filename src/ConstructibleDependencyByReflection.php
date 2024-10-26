@@ -6,6 +6,9 @@ namespace IfCastle\DI;
 
 final class ConstructibleDependencyByReflection implements DependencyInterface, ConstructibleInterface
 {
+    /**
+     * @var DescriptorInterface[]|null
+     */
     private array|null $descriptors = null;
 
     public function __construct(

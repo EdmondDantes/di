@@ -37,7 +37,10 @@ class DependencyNotFound extends \Exception
         }
 
         if (isset($backtrace[$stackOffset]) && $backtrace[$stackOffset] !== []) {
-            $requiredBy             = $backtrace[$stackOffset]['class'] ?? '' . $backtrace[$stackOffset]['type'] ?? '' . $backtrace[$stackOffset]['function'] ?? '';
+            $requiredBy             = $backtrace[$stackOffset]['class']
+                                    . $backtrace[$stackOffset]['type']
+                                    . $backtrace[$stackOffset]['function'];
+            
             $file                   = $backtrace[$stackOffset - 1]['file'] ?? '';
             $line                   = $backtrace[$stackOffset - 1]['line'] ?? '';
         }

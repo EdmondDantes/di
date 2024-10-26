@@ -6,7 +6,7 @@ namespace IfCastle\DI;
 
 final class Initializer implements InitializerInterface, DisposableInterface
 {
-    private $handler;
+    private mixed $handler;
 
     public function __construct(callable $handler)
     {

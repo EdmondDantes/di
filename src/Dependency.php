@@ -11,6 +11,7 @@ class Dependency implements DescriptorInterface
 {
     public function __construct(
         public string $key               = '',
+        /** @var string|string[]|null */
         public string|array|null $type   = null,
         public bool $isRequired          = true,
         public bool $isLazy              = false,

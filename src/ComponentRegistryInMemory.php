@@ -8,6 +8,11 @@ use IfCastle\DI\Exceptions\ConfigException;
 
 class ComponentRegistryInMemory implements ComponentRegistryMutableInterface
 {
+    /**
+     * @param array<string, ConfigInterface> $registry
+     * @param bool $isReadOnly
+     * @param bool $wasModified
+     */
     public function __construct(
         protected array   $registry       = [],
         protected bool    $isReadOnly     = false,
@@ -81,6 +86,7 @@ class ComponentRegistryInMemory implements ComponentRegistryMutableInterface
     #[\Override]
     public function cloneAsMutable(): static
     {
+        /* @phpstan-ignore-next-line */
         return new self($this->registry, false, $this->wasModified);
     }
 

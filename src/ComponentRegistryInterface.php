@@ -13,6 +13,11 @@ namespace IfCastle\DI;
  */
 interface ComponentRegistryInterface
 {
+    /**
+     * Returns the names of all components registered in the registry.
+     *
+     * @return string[]
+     */
     public function getComponentNames(): array;
 
     public function getComponentConfig(string $componentName): ConfigInterface;

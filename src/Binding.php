@@ -12,7 +12,10 @@ use Attribute;
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class Binding
 {
-    public readonly array $interfaces;
+    /**
+     * @var string[] $interfaces
+     */
+    public array $interfaces;
 
     public function __construct(string ...$interfaces)
     {

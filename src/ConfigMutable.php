@@ -8,6 +8,11 @@ use IfCastle\DI\Exceptions\ConfigException;
 
 class ConfigMutable implements ConfigMutableInterface
 {
+    /**
+     * @param array<string, scalar|scalar[]|null> $config
+     * @param bool $isReadOnly
+     * @param bool $wasModified
+     */
     public function __construct(
         protected array   $config         = [],
         protected bool    $isReadOnly     = false,
@@ -163,6 +168,7 @@ class ConfigMutable implements ConfigMutableInterface
     #[\Override]
     public function cloneAsMutable(): static
     {
+        /* @phpstan-ignore-next-line */
         return new self($this->config, false, $this->wasModified);
     }
 

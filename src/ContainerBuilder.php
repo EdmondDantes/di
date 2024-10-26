@@ -6,6 +6,9 @@ namespace IfCastle\DI;
 
 class ContainerBuilder implements BuilderInterface
 {
+    /**
+     * @var array<string, DependencyInterface|InitializerInterface|object|\Throwable|\WeakReference|scalar|null>
+     */
     protected array $bindings       = [];
 
     /**

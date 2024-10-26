@@ -10,6 +10,9 @@ interface DescriptorInterface
     
     public function getDependencyProperty(): string;
     
+    /**
+     * @return string|string[]|null
+     */
     public function getDependencyType(): string|array|null;
     
     public function isRequired(): bool;

@@ -9,7 +9,7 @@ final class LazyLoader
     /**
      * @var callable|null
      */
-    private $initializer;
+    private mixed $initializer;
     
     private mixed $afterHandler;
 
@@ -23,7 +23,13 @@ final class LazyLoader
         $this->afterHandler = $handler;
     }
 
-    final public function __call($method = null, $arguments = [])
+    /**
+     * @param mixed $method
+     * @param mixed[] $arguments
+     *
+     * @return mixed
+     */
+    final public function __call(mixed $method = null, array $arguments = []): mixed
     {
         // destroy initializer
         $initializer        = $this->initializer;

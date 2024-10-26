@@ -13,5 +13,10 @@ namespace IfCastle\DI;
  */
 interface ConfigurableFromArrayInterface
 {
+    /**
+     * Configures the object from an array.
+     *
+     * @param mixed[] $config
+     */
     public function configureFromArray(array $config): void;
 }
