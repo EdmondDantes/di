@@ -13,10 +13,11 @@ use IfCastle\DI\Exceptions\DependencyNotFound;
  */
 final class AliasInitializer implements InitializerInterface
 {
+    private bool $wasCalled = false;
     /**
-     * @var \WeakReference<object>|null
+     * @var \WeakReference<object>|scalar|array<scalar>|null
      */
-    private \WeakReference|null $dependency = null;
+    private \WeakReference|int|string|float|bool|array|null $dependency = null;
 
     public function __construct(readonly public string $alias, readonly public bool $isRequired = false) {}
 
@@ -33,19 +34,30 @@ final class AliasInitializer implements InitializerInterface
     #[\Override]
     public function executeInitializer(?ContainerInterface $container = null): mixed
     {
-        if ($this->dependency !== null) {
-            return $this->dependency->get();
-        }
+        if($this->wasCalled) {
+            
+            if ($this->dependency instanceof \WeakReference) {
+                return $this->dependency->get();
+            }
 
+            return $this->dependency;
+        }
+        
         if (null === $container) {
             return null;
         }
+        
+        $this->wasCalled            = true;
 
         $dependency                 = $this->isRequired ?
                                     $container->resolveDependency($this->alias) :
                                     $container->findDependency($this->alias);
 
-        $this->dependency           = \WeakReference::create($dependency);
+        if(is_object($dependency)) {
+            $this->dependency       = \WeakReference::create($dependency);
+        } else {
+            $this->dependency       = $dependency;
+        }
 
         return $dependency;
     }
