@@ -24,7 +24,7 @@ final class AliasInitializer implements InitializerInterface
     #[\Override]
     public function wasCalled(): bool
     {
-        return $this->dependency !== null;
+        return $this->wasCalled;
     }
 
     /**
