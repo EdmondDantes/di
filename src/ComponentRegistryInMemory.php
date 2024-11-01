@@ -10,8 +10,6 @@ class ComponentRegistryInMemory implements ComponentRegistryMutableInterface
 {
     /**
      * @param array<string, ConfigInterface> $registry
-     * @param bool $isReadOnly
-     * @param bool $wasModified
      */
     public function __construct(
         protected array   $registry       = [],

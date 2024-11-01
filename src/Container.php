@@ -140,7 +140,7 @@ class Container implements NestedContainerInterface, DisposableInterface
         if ($this->findKey($key) !== null) {
             return true;
         }
-        
+
         return $this->getParentContainer()?->hasDependency($key) ?? false;
     }
 
@@ -150,7 +150,7 @@ class Container implements NestedContainerInterface, DisposableInterface
         if (\is_string($key) && \array_key_exists($key, $this->container)) {
             return $key;
         }
-        
+
         if (\is_string($key)) {
             return null;
         }
@@ -177,7 +177,7 @@ class Container implements NestedContainerInterface, DisposableInterface
     {
         $container                  = $this->container;
         $this->container            = [];
-        
+
         $errors                     = [];
 
         foreach ($container as $key => $dependency) {
@@ -189,7 +189,7 @@ class Container implements NestedContainerInterface, DisposableInterface
                 }
             }
         }
-        
+
         if (\count($errors) === 1) {
             throw \array_pop($errors);
         }

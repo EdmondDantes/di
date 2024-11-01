@@ -41,7 +41,7 @@ final class ConstructibleDependencyByReflection implements DependencyInterface, 
         if ($this->descriptors !== null) {
             return $this->descriptors;
         }
-        
+
         $this->descriptors          = AttributesToDescriptors::readDescriptors($this->className, $this->resolveScalarAsConfig);
 
         return $this->descriptors;

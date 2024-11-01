@@ -9,8 +9,6 @@ final readonly class ConstructibleDependency implements DependencyInterface, Con
     /**
      * ConstructibleDependency constructor.
      *
-     * @param string $className
-     * @param bool   $useConstructor
      * @param DescriptorInterface[] $descriptors
      */
     public function __construct(

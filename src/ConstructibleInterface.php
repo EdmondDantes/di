@@ -7,6 +7,6 @@ namespace IfCastle\DI;
 interface ConstructibleInterface
 {
     public function getClassName(): string;
-    
+
     public function useConstructor(): bool;
 }

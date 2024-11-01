@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace IfCastle\DI;
 
 /**
- * A dependency container that can be mutable
+ * A dependency container that can be mutable.
  */
 interface ContainerMutableInterface extends ContainerInterface
 {

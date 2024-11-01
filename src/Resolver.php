@@ -22,7 +22,7 @@ class Resolver implements ResolverInterface
 
             // special case: if the dependency is already initialized for LazyLoad, we can skip the resolution
             if ($descriptor->isLazy()
-               && $descriptor->getFactory() === null
+               && $descriptor->getProvider() === null
                && null !== ($object = $container->getDependencyIfInitialized($descriptor))) {
                 $resolvedDependencies[] = $object;
                 continue;
@@ -60,13 +60,13 @@ class Resolver implements ResolverInterface
         DependencyInterface $forDependency,
         int                 $stackOffset = 0
     ): mixed {
-        $object                 = $descriptor->getFactory()?->create($container, $descriptor, $forDependency);
+        $object                 = $descriptor->getProvider()?->provide($container, $descriptor, $forDependency);
 
         if ($object !== null) {
             return $object;
         }
 
-        if ($descriptor->getFactory() !== null) {
+        if ($descriptor->getProvider() !== null) {
 
             if ($descriptor->hasDefaultValue()) {
                 return $descriptor->getDefaultValue();

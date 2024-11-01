@@ -7,12 +7,12 @@ namespace IfCastle\DI;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-final class FromConfig extends Dependency implements FactoryInterface
+final class FromConfig extends Dependency implements ProviderInterface
 {
     private string $section = '';
 
     #[\Override]
-    public function getFactory(): FactoryInterface|null
+    public function getProvider(): ProviderInterface|null
     {
         return $this;
     }
@@ -32,7 +32,7 @@ final class FromConfig extends Dependency implements FactoryInterface
     }
 
     #[\Override]
-    public function create(
+    public function provide(
         ContainerInterface  $container,
         DescriptorInterface $descriptor,
         ?DependencyInterface $forDependency = null

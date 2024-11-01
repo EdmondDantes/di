@@ -32,15 +32,15 @@ class DependencyNotFound extends \Exception
         $backtrace                  = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $stackOffset + 1);
         $withFactory                = '';
 
-        if ($name instanceof DescriptorInterface && $name->getFactory() !== null) {
-            $withFactory            = ' with Factory: \'' . \get_debug_type($name->getFactory()) . '\'';
+        if ($name instanceof DescriptorInterface && $name->getProvider() !== null) {
+            $withFactory            = ' with Factory: \'' . \get_debug_type($name->getProvider()) . '\'';
         }
 
         if (isset($backtrace[$stackOffset]) && $backtrace[$stackOffset] !== []) {
             $requiredBy             = $backtrace[$stackOffset]['class']
                                     . $backtrace[$stackOffset]['type']
                                     . $backtrace[$stackOffset]['function'];
-            
+
             $file                   = $backtrace[$stackOffset - 1]['file'] ?? '';
             $line                   = $backtrace[$stackOffset - 1]['line'] ?? '';
         }

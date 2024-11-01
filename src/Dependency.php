@@ -51,7 +51,7 @@ class Dependency implements DescriptorInterface
     }
 
     #[\Override]
-    public function getFactory(): FactoryInterface|null
+    public function getProvider(): ProviderInterface|null
     {
         return null;
     }

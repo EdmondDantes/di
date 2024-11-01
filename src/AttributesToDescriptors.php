@@ -48,11 +48,10 @@ class AttributesToDescriptors
 
         return $descriptors;
     }
-    
+
     /**
      * @param \ReflectionClass<object>     $reflectionClass
      *
-     * @return DescriptorInterface
      * @throws InjectionNotPossible
      */
     protected static function parameterToDescriptor(
@@ -107,7 +106,6 @@ class AttributesToDescriptors
     /**
      * @param \ReflectionClass<object>     $reflectionClass
      *
-     * @return DescriptorInterface
      * @throws InjectionNotPossible
      */
     protected static function propertyToDescriptor(
@@ -229,10 +227,9 @@ class AttributesToDescriptors
 
         throw new InjectionNotPossible($object, 'intersection type', 'object');
     }
-    
+
     /**
      * @param \ReflectionClass<object> $reflectionClass
-     * @return void
      */
     protected static function handleConfigSection(mixed $descriptor, \ReflectionClass $reflectionClass): void
     {
@@ -244,11 +241,10 @@ class AttributesToDescriptors
             }
         }
     }
-    
+
     /**
      * @param string[]|string|null $type
      *
-     * @return bool
      */
     protected static function isScalarType(array|string|null $type): bool
     {

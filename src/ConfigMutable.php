@@ -10,8 +10,6 @@ class ConfigMutable implements ConfigMutableInterface
 {
     /**
      * @param array<string, scalar|scalar[]|null> $config
-     * @param bool $isReadOnly
-     * @param bool $wasModified
      */
     public function __construct(
         protected array   $config         = [],

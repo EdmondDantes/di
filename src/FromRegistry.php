@@ -7,16 +7,16 @@ namespace IfCastle\DI;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-final class FromRegistry extends Dependency implements FactoryInterface
+final class FromRegistry extends Dependency implements ProviderInterface
 {
     #[\Override]
-    public function getFactory(): FactoryInterface|null
+    public function getProvider(): ProviderInterface|null
     {
         return $this;
     }
 
     #[\Override]
-    public function create(
+    public function provide(
         ContainerInterface  $container,
         DescriptorInterface $descriptor,
         ?DependencyInterface $forDependency = null
