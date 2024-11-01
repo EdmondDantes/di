@@ -20,7 +20,7 @@ final class FromRegistry extends Dependency implements FactoryInterface
         ContainerInterface  $container,
         DescriptorInterface $descriptor,
         ?DependencyInterface $forDependency = null
-    ): object|null {
+    ): mixed {
         $registry                     = $container->findDependency(ComponentRegistryInterface::class);
 
         if ($registry === null) {

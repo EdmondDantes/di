@@ -36,7 +36,7 @@ final class FromConfig extends Dependency implements FactoryInterface
         ContainerInterface  $container,
         DescriptorInterface $descriptor,
         ?DependencyInterface $forDependency = null
-    ): object|null {
+    ): mixed {
         $config                     = $container->findDependency(ConfigInterface::class);
 
         if ($config === null) {
