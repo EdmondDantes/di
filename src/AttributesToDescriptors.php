@@ -65,8 +65,10 @@ class AttributesToDescriptors
         if ($attributes !== []) {
             $attribute          = $attributes[0];
             $descriptor         = $attribute->newInstance();
+            $isNotDefined       = false;
         } else {
             $descriptor         = new Dependency();
+            $isNotDefined       = true;
         }
 
         if ($descriptor instanceof DescriptorInterface === false) {
@@ -85,7 +87,7 @@ class AttributesToDescriptors
             $descriptor->type   = self::defineType($parameter->getType(), $object);
         }
 
-        if ($resolveScalarAsConfig && false === $descriptor instanceof FromConfig && self::isScalarType($descriptor->type)) {
+        if ($resolveScalarAsConfig && $isNotDefined && self::isScalarType($descriptor->type)) {
             $descriptor         = new FromConfig($parameter->getName(), $descriptor->type);
         }
 
