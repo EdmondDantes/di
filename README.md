@@ -1,4 +1,4 @@
-# Dependency Injection [![PHP Composer](https://github.com/EdmondDantes/di/actions/workflows/php.yml/badge.svg)](https://github.com/EdmondDantes/amphp-pool/actions/workflows/php.yml)
+# Dependency Injection [![PHP Composer](https://github.com/EdmondDantes/di/actions/workflows/php.yml/badge.svg)](https://github.com/EdmondDantes/di/actions/workflows/php.yml)
 
 `Dependency Injection` (DI) is a lightweight `PHP` library for dependency injection
 for `stateful` application.

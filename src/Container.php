@@ -36,7 +36,7 @@ class Container implements NestedContainerInterface, DisposableInterface
     #[\Override]
     public function resolveDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, int $stackOffset = 0): mixed
     {
-        $dependency                 = $this->findDependency($name, $forDependency);
+        $dependency                 = $this->findDependency($name, $forDependency, true);
 
         if (null === $dependency) {
 
@@ -55,18 +55,18 @@ class Container implements NestedContainerInterface, DisposableInterface
     }
 
     #[\Override]
-    public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null): mixed
+    public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, bool $returnThrowable = false): mixed
     {
         $key                        = $this->findKey($name);
 
         if (null === $key) {
-            return $this->getParentContainer()?->findDependency($name, $forDependency);
+            return $this->getParentContainer()?->findDependency($name, $forDependency, $returnThrowable);
         }
 
         $dependency                 = $this->container[$key];
 
         if ($dependency instanceof \Throwable) {
-            return $dependency;
+            return $returnThrowable ? $dependency : null;
         }
 
         if ($dependency instanceof InitializerInterface) {
@@ -81,7 +81,7 @@ class Container implements NestedContainerInterface, DisposableInterface
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;
-                return $exception;
+                return $returnThrowable ? $exception : null;
             }
         }
 
@@ -105,7 +105,7 @@ class Container implements NestedContainerInterface, DisposableInterface
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;
-                return $exception;
+                return $returnThrowable ? $exception : null;
             }
         }
 

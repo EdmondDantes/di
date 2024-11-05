@@ -25,9 +25,9 @@ interface ContainerInterface
      *
      * @param class-string<Class>|string|DescriptorInterface    $name
      *
-     * @return ($name is class-string ? Class|null : scalar|array<scalar>|null)
+     * @return ($name is class-string ? Class|null|\Throwable : scalar|array<scalar>|null|\Throwable)
      */
-    public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null): mixed;
+    public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, bool $returnThrowable = false): mixed;
 
     /**
      * @template Class
