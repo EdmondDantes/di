@@ -21,6 +21,11 @@ class Container implements NestedContainerInterface, DisposableInterface
         if (null !== $parentContainer) {
             $this->parentContainer  = $isWeakParent ? \WeakReference::create($parentContainer) : $parentContainer;
         }
+
+        // add self-reference to container
+        if (\array_key_exists(ContainerInterface::class, $this->container)) {
+            $this->container[ContainerInterface::class] = \WeakReference::create($this);
+        }
     }
 
     #[\Override]
