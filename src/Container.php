@@ -115,6 +115,9 @@ class Container implements NestedContainerInterface, DisposableInterface
         return null;
     }
 
+    /**
+     * @throws \Throwable
+     */
     #[\Override]
     public function getDependencyIfInitialized(string|DescriptorInterface $name): mixed
     {
@@ -127,7 +130,7 @@ class Container implements NestedContainerInterface, DisposableInterface
         $dependency                 = $this->container[$key];
 
         if ($dependency instanceof \Throwable) {
-            return $dependency;
+            throw $dependency;
         }
 
         if ($dependency instanceof InitializerInterface || $dependency instanceof DependencyInterface) {
