@@ -54,6 +54,9 @@ class Container implements NestedContainerInterface, DisposableInterface
         return $dependency;
     }
 
+    /**
+     * @throws \Throwable
+     */
     #[\Override]
     public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, bool $returnThrowable = false): mixed
     {
@@ -66,7 +69,7 @@ class Container implements NestedContainerInterface, DisposableInterface
         $dependency                 = $this->container[$key];
 
         if ($dependency instanceof \Throwable) {
-            return $returnThrowable ? $dependency : null;
+            return $returnThrowable ? $dependency : throw $dependency;
         }
 
         if ($dependency instanceof InitializerInterface) {
@@ -81,7 +84,7 @@ class Container implements NestedContainerInterface, DisposableInterface
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;
-                return $returnThrowable ? $exception : null;
+                return $returnThrowable ? $exception : throw $exception;
             }
         }
 
@@ -105,7 +108,7 @@ class Container implements NestedContainerInterface, DisposableInterface
                 return $this->container[$key];
             } catch (\Throwable $exception) {
                 $this->container[$key] = $exception;
-                return $returnThrowable ? $exception : null;
+                return $returnThrowable ? $exception : throw $exception;
             }
         }
 
