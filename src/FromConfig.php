@@ -35,7 +35,8 @@ final class FromConfig extends Dependency implements ProviderInterface
     public function provide(
         ContainerInterface  $container,
         DescriptorInterface $descriptor,
-        ?DependencyInterface $forDependency = null
+        ?DependencyInterface $forDependency = null,
+        array $resolvingKeys = []
     ): mixed {
         $config                     = $container->findDependency(ConfigInterface::class);
 

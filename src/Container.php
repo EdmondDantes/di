@@ -39,9 +39,13 @@ class Container implements NestedContainerInterface, DisposableInterface
     }
 
     #[\Override]
-    public function resolveDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, int $stackOffset = 0): mixed
-    {
-        $dependency                 = $this->findDependency($name, $forDependency, true);
+    public function resolveDependency(
+        string|DescriptorInterface  $name,
+        ?DependencyInterface        $forDependency      = null,
+        int                         $stackOffset        = 0,
+        array                       $resolvingKeys   = [],
+    ): mixed {
+        $dependency                 = $this->findDependency($name, $forDependency, true, $resolvingKeys);
 
         if (null === $dependency) {
 
@@ -63,12 +67,16 @@ class Container implements NestedContainerInterface, DisposableInterface
      * @throws \Throwable
      */
     #[\Override]
-    public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, bool $returnThrowable = false): mixed
-    {
+    public function findDependency(
+        string|DescriptorInterface  $name,
+        ?DependencyInterface        $forDependency      = null,
+        bool                        $returnThrowable    = false,
+        array                       $resolvingKeys   = [],
+    ): mixed {
         $key                        = $this->findKey($name);
 
         if (null === $key) {
-            return $this->getParentContainer()?->findDependency($name, $forDependency, $returnThrowable);
+            return $this->getParentContainer()?->findDependency($name, $forDependency, $returnThrowable, $resolvingKeys);
         }
 
         $dependency                 = $this->container[$key];
@@ -80,7 +88,7 @@ class Container implements NestedContainerInterface, DisposableInterface
         if ($dependency instanceof InitializerInterface) {
 
             try {
-                $this->container[$key] = $dependency->executeInitializer($this);
+                $this->container[$key] = $dependency->executeInitializer($this, $resolvingKeys);
 
                 if ($this->container[$key] instanceof \WeakReference) {
                     return $this->container[$key]->get();
@@ -104,7 +112,7 @@ class Container implements NestedContainerInterface, DisposableInterface
         if ($this->resolver->canResolveDependency($dependency, $this)) {
 
             try {
-                $this->container[$key] = $this->resolver->resolveDependency($dependency, $this);
+                $this->container[$key] = $this->resolver->resolveDependency($dependency, $this, $name, $resolvingKeys);
 
                 if ($this->container[$key] instanceof \WeakReference) {
                     return $this->container[$key]->get();

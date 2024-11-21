@@ -33,7 +33,7 @@ final class AliasInitializer implements InitializerInterface
      * @throws DependencyNotFound
      */
     #[\Override]
-    public function executeInitializer(?ContainerInterface $container = null): mixed
+    public function executeInitializer(?ContainerInterface $container = null, array $resolvingKeys = []): mixed
     {
         if ($this->wasCalled) {
 

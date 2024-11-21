@@ -9,5 +9,15 @@ namespace IfCastle\DI;
  */
 interface ProviderInterface
 {
-    public function provide(ContainerInterface $container, DescriptorInterface $descriptor, ?DependencyInterface $forDependency = null): mixed;
+    /**
+     * Provides a dependency based on its descriptor, container, and dependency.
+     *
+     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
+     */
+    public function provide(
+        ContainerInterface $container,
+        DescriptorInterface $descriptor,
+        ?DependencyInterface $forDependency = null,
+        array $resolvingKeys = []
+    ): mixed;
 }

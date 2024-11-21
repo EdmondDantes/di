@@ -13,7 +13,7 @@ final class SelfReferenceInitializer implements InitializerInterface
     }
 
     #[\Override]
-    public function executeInitializer(?ContainerInterface $container = null): mixed
+    public function executeInitializer(?ContainerInterface $container = null, array $resolvingKeys = []): mixed
     {
         if ($container === null) {
             return null;

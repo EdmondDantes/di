@@ -8,5 +8,13 @@ interface ResolverInterface
 {
     public function canResolveDependency(DependencyInterface $dependency, ContainerInterface $container): bool;
 
-    public function resolveDependency(DependencyInterface $dependency, ContainerInterface $container): mixed;
+    /**
+     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
+     */
+    public function resolveDependency(
+        DependencyInterface $dependency,
+        ContainerInterface $container,
+        string|DescriptorInterface $name,
+        array $resolvingKeys = []
+    ): mixed;
 }

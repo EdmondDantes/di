@@ -28,6 +28,7 @@ interface InitializerInterface
     /**
      * ## Execute the initializer.
      *
+     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
      */
-    public function executeInitializer(?ContainerInterface $container = null): mixed;
+    public function executeInitializer(?ContainerInterface $container = null, array $resolvingKeys = []): mixed;
 }

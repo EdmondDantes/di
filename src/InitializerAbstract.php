@@ -15,11 +15,14 @@ abstract class InitializerAbstract implements InitializerInterface
     }
 
     #[\Override]
-    public function executeInitializer(?ContainerInterface $container = null): mixed
+    public function executeInitializer(?ContainerInterface $container = null, array $resolvingKeys = []): mixed
     {
         $this->wasCalled = true;
-        return $this->initialize($container);
+        return $this->initialize($container, $resolvingKeys);
     }
 
-    abstract protected function initialize(ContainerInterface $container): mixed;
+    /**
+     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
+     */
+    abstract protected function initialize(ContainerInterface $container, array $resolvingKeys = []): mixed;
 }

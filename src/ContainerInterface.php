@@ -20,11 +20,17 @@ interface ContainerInterface
      *
      * @template Class
      * @param class-string<Class>|string|DescriptorInterface $name
+     * @param array<class-string>                            $resolvingKeys list of classes that are currently being resolved
      *
      * @return ($name is class-string ? Class : scalar|array<scalar>|null)
      * @throws DependencyNotFound
      */
-    public function resolveDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, int $stackOffset = 0): mixed;
+    public function resolveDependency(
+        string|DescriptorInterface  $name,
+        ?DependencyInterface        $forDependency      = null,
+        int                         $stackOffset        = 0,
+        array                       $resolvingKeys      = [],
+    ): mixed;
 
     /**
      * The method performs dependency lookup and resolution. If the dependency is not defined in the container,
@@ -33,12 +39,18 @@ interface ContainerInterface
      *
      * @template Class
      *
-     * @param class-string<Class>|string|DescriptorInterface    $name
+     * @param class-string<Class>|string|DescriptorInterface $name
+     * @param array<class-string>                            $resolvingKeys list of classes that are currently being resolved
      *
      * @return ($name is class-string ? Class|null|\Throwable : scalar|array<scalar>|null|\Throwable)
      * @throws \Throwable
      */
-    public function findDependency(string|DescriptorInterface $name, ?DependencyInterface $forDependency = null, bool $returnThrowable = false): mixed;
+    public function findDependency(
+        string|DescriptorInterface      $name,
+        ?DependencyInterface            $forDependency      = null,
+        bool                            $returnThrowable    = false,
+        array                           $resolvingKeys      = [],
+    ): mixed;
 
     /**
      * The method returns the dependency if it is defined and has been resolved.

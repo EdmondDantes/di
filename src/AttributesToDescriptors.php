@@ -95,7 +95,9 @@ class AttributesToDescriptors
 
         $descriptor->isRequired = false === $parameter->allowsNull() && $parameter->isOptional() === false;
 
-        $descriptor->isLazy     = \is_array($descriptor->type) && \in_array(LazyLoader::class, $descriptor->type, true);
+        if ($parameter->getAttributes(Lazy::class) !== []) {
+            $descriptor->isLazy = true;
+        }
 
         if ($parameter->isDefaultValueAvailable()) {
             $descriptor->hasDefaultValue    = true;
@@ -148,7 +150,10 @@ class AttributesToDescriptors
         self::handleConfigSection($descriptor, $reflectionClass);
 
         $descriptor->isRequired = false === ($property->hasDefaultValue() || $property->getType()?->allowsNull());
-        $descriptor->isLazy     = \is_array($descriptor->type) && \in_array(LazyLoader::class, $descriptor->type, true);
+
+        if ($property->getAttributes(Lazy::class) !== []) {
+            $descriptor->isLazy = true;
+        }
 
         if ($property->hasDefaultValue()) {
             $descriptor->hasDefaultValue    = true;

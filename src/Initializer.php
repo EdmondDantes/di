@@ -20,7 +20,7 @@ final class Initializer implements InitializerInterface, DisposableInterface
     }
 
     #[\Override]
-    public function executeInitializer(?ContainerInterface $container = null): mixed
+    public function executeInitializer(?ContainerInterface $container = null, array $resolvingKeys = []): mixed
     {
         $handler                    = $this->handler;
 
