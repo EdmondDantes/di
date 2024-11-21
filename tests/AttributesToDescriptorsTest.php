@@ -103,7 +103,7 @@ class AttributesToDescriptorsTest extends TestCase
         $this->assertInstanceOf(DescriptorInterface::class, $lazy);
         $this->assertInstanceOf(Dependency::class, $lazy);
         $this->assertEquals('lazy', $lazy->key);
-        $this->assertEquals([UseConstructorInterface::class, LazyLoader::class], $lazy->type);
+        $this->assertEquals(UseConstructorInterface::class, $lazy->type);
         $this->assertTrue($lazy->isRequired);
         $this->assertEquals('lazy', $lazy->property);
         $this->assertTrue($lazy->isLazy);

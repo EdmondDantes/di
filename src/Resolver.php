@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
-use IfCastle\DI\Exceptions\CircularDependencyException;
 use IfCastle\DI\Exceptions\DependencyNotFound;
 use IfCastle\DI\Exceptions\MaxResolutionDepthException;
 
@@ -12,10 +11,11 @@ class Resolver implements ResolverInterface
 {
     /**
      * @param DescriptorInterface[] $dependencies
-     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
+     * @param array<class-string>   $resolvingKeys list of classes that are currently being resolved
      *
      * @return mixed[]
      * @throws DependencyNotFound
+     * @throws \Throwable
      */
     public static function resolveDependencies(
         ContainerInterface $container,
@@ -24,7 +24,7 @@ class Resolver implements ResolverInterface
         array $resolvingKeys        = [],
     ): array {
         $resolvedDependencies       = [];
-        
+
         foreach ($dependencies as $descriptor) {
 
             // special case: if the dependency is already initialized for LazyLoad, we can skip the resolution
@@ -32,29 +32,9 @@ class Resolver implements ResolverInterface
                && $descriptor->getProvider() === null
                && null !== ($object = $container->getDependencyIfInitialized($descriptor))) {
                 $resolvedDependencies[] = $object;
-                continue;
-            }
-
-            if (false === $descriptor->isLazy()) {
+            } else {
                 $resolvedDependencies[] = static::resolve($container, $descriptor, $forDependency, 0, $resolvingKeys);
-                continue;
             }
-
-            // LazyLoad
-
-            $containerRef           = \WeakReference::create($container);
-            
-            $reflector              = new \ReflectionClass($descriptor->getDependencyType());
-
-            $resolvedDependencies[] = new LazyLoader(static function () use ($containerRef, $descriptor, $forDependency) {
-                $container          = $containerRef->get();
-
-                if ($container === null) {
-                    throw new \Error('container, descriptor or dependency is not available');
-                }
-
-                return static::resolve($container, $descriptor, $forDependency);
-            });
         }
 
         return $resolvedDependencies;
@@ -85,13 +65,13 @@ class Resolver implements ResolverInterface
             }
 
             if ($descriptor->isRequired()) {
-                throw new DependencyNotFound($descriptor, $container, $forDependency, $stackOffset + 4);
+                throw new DependencyNotFound($descriptor, $container, $forDependency, $stackOffset + 5);
             }
 
             return null;
         }
 
-        return $container->resolveDependency($descriptor, $forDependency, $stackOffset + 5, $resolvingKeys);
+        return $container->resolveDependency($descriptor, $forDependency, $stackOffset + 6, $resolvingKeys);
     }
 
     #[\Override]
@@ -155,7 +135,7 @@ class Resolver implements ResolverInterface
 
         return $this->instanciateDependency($dependency, $container, $resolvingKeys);
     }
-    
+
     /**
      * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
      *
@@ -163,31 +143,28 @@ class Resolver implements ResolverInterface
      * @throws DependencyNotFound
      */
     protected function instanciateDependency(
-        DependencyInterface $dependency,
+        DependencyInterface & ConstructibleInterface $dependency,
         ContainerInterface $container,
         array $resolvingKeys = [],
-    ): mixed
-    {
-        if (false === $dependency instanceof ConstructibleInterface) {
-            throw new \Error('descriptor must implement ConstructibleInterface');
-        }
-        
-        $dependencies               = static::resolveDependencies($container, $dependency->getDependencyDescriptors(), $dependency, $resolvingKeys);
-        
+    ): mixed {
+        $dependencies               = static::resolveDependencies(
+            $container, $dependency->getDependencyDescriptors(), $dependency, $resolvingKeys
+        );
+
         if ($dependency->useConstructor()) {
             $className              = $dependency->getClassName();
             return new $className(...$dependencies);
         }
-        
+
         $className                  = $dependency->getClassName();
         $object                     = new $className();
-        
+
         if ($object instanceof InjectableInterface) {
             return $object->injectDependencies($dependencies, $dependency)->initializeAfterInject();
         } elseif ($object instanceof AutoResolverInterface) {
             $object->resolveDependencies($container);
         }
-        
+
         return $object;
     }
 }

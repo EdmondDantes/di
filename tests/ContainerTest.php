@@ -87,11 +87,8 @@ class ContainerTest extends TestCase
         $result = $this->container->resolveDependency('lazy_dependency');
 
         $this->assertInstanceOf(ClassWithLazyDependency::class, $result);
-        $this->assertInstanceOf(LazyLoader::class, $result->some);
-
-        $result->some->someMethod();
-
         $this->assertInstanceOf(UseConstructorClass::class, $result->some);
+        $result->some->someMethod();
     }
 
     /**

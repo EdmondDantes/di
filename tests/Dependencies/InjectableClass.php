@@ -7,7 +7,7 @@ namespace IfCastle\DI\Dependencies;
 use IfCastle\DI\Dependency;
 use IfCastle\DI\InjectableInterface;
 use IfCastle\DI\InjectorTrait;
-use IfCastle\DI\LazyLoader;
+use IfCastle\DI\Lazy;
 
 final class InjectableClass implements InjectableInterface
 {
@@ -19,8 +19,8 @@ final class InjectableClass implements InjectableInterface
     #[Dependency]
     protected UseConstructorInterface|null $optional;
 
-    #[Dependency]
-    protected UseConstructorInterface|LazyLoader $lazy;
+    #[Dependency] #[Lazy]
+    protected UseConstructorInterface $lazy;
 
     protected string $data = '';
 }
