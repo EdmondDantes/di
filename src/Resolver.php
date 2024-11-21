@@ -112,14 +112,17 @@ class Resolver implements ResolverInterface
         string|DescriptorInterface  $name,
         array $resolvingKeys = [],
     ): mixed {
-        $self                       = $dependency;
 
         if (false === $dependency instanceof ConstructibleInterface) {
             throw new \Error('descriptor must implement ConstructibleInterface');
         }
 
-        // Circular dependency check
-        if (\in_array(\is_string($name) ? $name : $name->getDependencyKey(), $resolvingKeys, true)) {
+        //
+        // Use Proxy to avoid circular dependencies
+        // or if the dependency is lazy.
+        //
+        if ((\in_array(\is_string($name) ? $name : $name->getDependencyKey(), $resolvingKeys, true))
+            || ($name instanceof DescriptorInterface && $name->isLazy())) {
 
             $containerRef           = \WeakReference::create($container);
             $resolverRef            = \WeakReference::create($this);
@@ -130,8 +133,8 @@ class Resolver implements ResolverInterface
             // and return a Proxy object that will later point to the actual dependency.
             //
             $reflection             = new \ReflectionClass($dependency->getClassName());
-            $proxyObject            = $reflection->newLazyProxy(
-                static function () use ($containerRef, $resolverRef, $dependency, $name, $reflection, $resolvingKeys) {
+            return $reflection->newLazyProxy(
+                static function () use ($containerRef, $resolverRef, $dependency) {
 
                     $container      = $containerRef->get();
                     $resolver       = $resolverRef->get();
@@ -140,16 +143,8 @@ class Resolver implements ResolverInterface
                         return null;
                     }
 
-                    $result         = $resolver->resolveDependency($dependency, $container, $name);
-
-                    if ($reflection->isUninitializedLazyObject($result)) {
-                        throw new CircularDependencyException($name, $container, $resolvingKeys);
-                    }
-
-                    return $result;
+                    return $resolver->instanciateDependency($dependency, $container);
                 });
-
-            return $proxyObject;
         }
 
         $resolvingKeys[]            = \is_string($name) ? $name : $name->getDependencyKey();
@@ -158,22 +153,41 @@ class Resolver implements ResolverInterface
             throw new MaxResolutionDepthException(32, $resolvingKeys);
         }
 
-        $dependencies               = static::resolveDependencies($container, $self->getDependencyDescriptors(), $self, $resolvingKeys);
-
+        return $this->instanciateDependency($dependency, $container, $resolvingKeys);
+    }
+    
+    /**
+     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
+     *
+     * @throws \ReflectionException
+     * @throws DependencyNotFound
+     */
+    protected function instanciateDependency(
+        DependencyInterface $dependency,
+        ContainerInterface $container,
+        array $resolvingKeys = [],
+    ): mixed
+    {
+        if (false === $dependency instanceof ConstructibleInterface) {
+            throw new \Error('descriptor must implement ConstructibleInterface');
+        }
+        
+        $dependencies               = static::resolveDependencies($container, $dependency->getDependencyDescriptors(), $dependency, $resolvingKeys);
+        
         if ($dependency->useConstructor()) {
             $className              = $dependency->getClassName();
             return new $className(...$dependencies);
         }
-
+        
         $className                  = $dependency->getClassName();
         $object                     = new $className();
-
+        
         if ($object instanceof InjectableInterface) {
-            return $object->injectDependencies($dependencies, $self)->initializeAfterInject();
+            return $object->injectDependencies($dependencies, $dependency)->initializeAfterInject();
         } elseif ($object instanceof AutoResolverInterface) {
             $object->resolveDependencies($container);
         }
-
+        
         return $object;
     }
 }
