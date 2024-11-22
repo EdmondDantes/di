@@ -18,9 +18,8 @@ final class CircularDependencyException extends \Exception
         $container                  = $container::class;
         $resolvingKeys              = \implode(' -> ', $resolvingKeys);
 
-        parent::__construct('A circular dependency ' . $name . ' was detected,'
-                            . ' but attempting to resolve it results a Proxy object. '
-                            . ' container: ' . $container . ' (resolving keys: ' . $resolvingKeys . ')'
+        parent::__construct('A circular reference was detected while resolving a Lazy dependency "'.$name.'"! '
+                            . ' The container: ' . $container . ' (resolving keys: ' . $resolvingKeys . ')'
         );
     }
 }

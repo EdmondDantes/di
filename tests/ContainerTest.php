@@ -6,12 +6,15 @@ namespace IfCastle\DI;
 
 use IfCastle\DI\Dependencies\CircularDependency1;
 use IfCastle\DI\Dependencies\CircularDependency2;
+use IfCastle\DI\Dependencies\CircularDependencyWrong1;
+use IfCastle\DI\Dependencies\CircularDependencyWrong2;
 use IfCastle\DI\Dependencies\ClassWithLazyDependency;
 use IfCastle\DI\Dependencies\ClassWithNoExistDependency;
 use IfCastle\DI\Dependencies\UseConstructorClass;
 use IfCastle\DI\Dependencies\UseConstructorInterface;
 use IfCastle\DI\Dependencies\UseInjectableClass;
 use IfCastle\DI\Dependencies\UseInjectableInterface;
+use IfCastle\DI\Exceptions\CircularDependencyException;
 use IfCastle\DI\Exceptions\DependencyNotFound;
 use PHPUnit\Framework\TestCase;
 
@@ -29,6 +32,8 @@ class ContainerTest extends TestCase
         $builder->bindConstructible('lazy_dependency', ClassWithLazyDependency::class);
         $builder->bindConstructible(CircularDependency1::class, CircularDependency1::class);
         $builder->bindConstructible(CircularDependency2::class, CircularDependency2::class);
+        $builder->bindConstructible(CircularDependencyWrong1::class, CircularDependencyWrong1::class);
+        $builder->bindConstructible(CircularDependencyWrong2::class, CircularDependencyWrong2::class);
         $builder->bindSelfReference();
 
         $this->container            = $builder->buildContainer(new Resolver());
@@ -113,5 +118,11 @@ class ContainerTest extends TestCase
         
         $this->assertInstanceOf(CircularDependency2::class, $dependency1->getDependency2());
         $this->assertInstanceOf(CircularDependency1::class, $dependency2->getDependency1());
+    }
+    
+    public function testCircularDependencyWrong(): void
+    {
+        $this->expectException(CircularDependencyException::class);
+        $this->container->resolveDependency(CircularDependencyWrong1::class);
     }
 }

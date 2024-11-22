@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
+use IfCastle\DI\Exceptions\CircularDependencyException;
 use IfCastle\DI\Exceptions\DependencyNotFound;
 use IfCastle\DI\Exceptions\MaxResolutionDepthException;
 
@@ -11,7 +12,7 @@ class Resolver implements ResolverInterface
 {
     /**
      * @param DescriptorInterface[] $dependencies
-     * @param array<class-string>   $resolvingKeys list of classes that are currently being resolved
+     * @param array<class-string|string> $resolvingKeys list of classes that are currently being resolved
      *
      * @return mixed[]
      * @throws DependencyNotFound
@@ -22,6 +23,7 @@ class Resolver implements ResolverInterface
         array $dependencies,
         DependencyInterface $forDependency,
         array $resolvingKeys        = [],
+        bool  $allowLazy            = true,
     ): array {
         $resolvedDependencies       = [];
 
@@ -33,7 +35,7 @@ class Resolver implements ResolverInterface
                && null !== ($object = $container->getDependencyIfInitialized($descriptor))) {
                 $resolvedDependencies[] = $object;
             } else {
-                $resolvedDependencies[] = static::resolve($container, $descriptor, $forDependency, 0, $resolvingKeys);
+                $resolvedDependencies[] = static::resolve($container, $descriptor, $forDependency, 0, $resolvingKeys, $allowLazy);
             }
         }
 
@@ -49,8 +51,9 @@ class Resolver implements ResolverInterface
         ContainerInterface  $container,
         DescriptorInterface $descriptor,
         DependencyInterface $forDependency,
-        int                 $stackOffset = 0,
-        array               $resolvingKeys = [],
+        int                 $stackOffset    = 0,
+        array               $resolvingKeys  = [],
+        bool                $allowLazy      = true,
     ): mixed {
         $object                 = $descriptor->getProvider()?->provide($container, $descriptor, $forDependency, $resolvingKeys);
 
@@ -71,7 +74,7 @@ class Resolver implements ResolverInterface
             return null;
         }
 
-        return $container->resolveDependency($descriptor, $forDependency, $stackOffset + 6, $resolvingKeys);
+        return $container->resolveDependency($descriptor, $forDependency, $stackOffset + 6, $resolvingKeys, $allowLazy);
     }
 
     #[\Override]
@@ -90,20 +93,25 @@ class Resolver implements ResolverInterface
         DependencyInterface $dependency,
         ContainerInterface $container,
         string|DescriptorInterface  $name,
-        array $resolvingKeys = [],
+        string $key,
+        array $resolvingKeys        = [],
+        bool $allowLazy             = true,
     ): mixed {
 
         if (false === $dependency instanceof ConstructibleInterface) {
             throw new \Error('descriptor must implement ConstructibleInterface');
         }
-
+        
         //
         // Use Proxy to avoid circular dependencies
         // or if the dependency is lazy.
         //
-        if ((\in_array(\is_string($name) ? $name : $name->getDependencyKey(), $resolvingKeys, true))
-            || ($name instanceof DescriptorInterface && $name->isLazy())) {
+        if (\in_array($key, $resolvingKeys, true) || ($name instanceof DescriptorInterface && $name->isLazy())) {
 
+            if(false === $allowLazy) {
+                throw new CircularDependencyException($name, $container, $resolvingKeys);
+            }
+            
             $containerRef           = \WeakReference::create($container);
             $resolverRef            = \WeakReference::create($this);
 
@@ -112,9 +120,8 @@ class Resolver implements ResolverInterface
             // If a circular dependency resolution is detected, we stop the resolution process
             // and return a Proxy object that will later point to the actual dependency.
             //
-            $reflection             = new \ReflectionClass($dependency->getClassName());
-            return $reflection->newLazyProxy(
-                static function () use ($containerRef, $resolverRef, $dependency) {
+            return new \ReflectionClass($dependency->getClassName())->newLazyProxy(
+                static function () use ($containerRef, $resolverRef, $dependency, $resolvingKeys, $key) {
 
                     $container      = $containerRef->get();
                     $resolver       = $resolverRef->get();
@@ -122,17 +129,21 @@ class Resolver implements ResolverInterface
                     if ($container === null || $resolver === null) {
                         return null;
                     }
+                    
+                    if(false === in_array($key, $resolvingKeys, true)) {
+                        $resolvingKeys[] = $key;
+                    }
 
-                    return $resolver->instanciateDependency($dependency, $container);
+                    return $resolver->instanciateDependency($dependency, $container, $resolvingKeys, allowLazy: false);
                 });
         }
-
-        $resolvingKeys[]            = \is_string($name) ? $name : $name->getDependencyKey();
-
+        
+        $resolvingKeys[]            = $key;
+        
         if (\count($resolvingKeys) > 32) {
             throw new MaxResolutionDepthException(32, $resolvingKeys);
         }
-
+        
         return $this->instanciateDependency($dependency, $container, $resolvingKeys);
     }
 
@@ -145,10 +156,11 @@ class Resolver implements ResolverInterface
     protected function instanciateDependency(
         DependencyInterface & ConstructibleInterface $dependency,
         ContainerInterface $container,
-        array $resolvingKeys = [],
+        array $resolvingKeys        = [],
+        bool  $allowLazy            = true,
     ): mixed {
         $dependencies               = static::resolveDependencies(
-            $container, $dependency->getDependencyDescriptors(), $dependency, $resolvingKeys
+            $container, $dependency->getDependencyDescriptors(), $dependency, $resolvingKeys, $allowLazy
         );
 
         if ($dependency->useConstructor()) {

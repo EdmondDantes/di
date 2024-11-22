@@ -30,6 +30,7 @@ interface ContainerInterface
         ?DependencyInterface        $forDependency      = null,
         int                         $stackOffset        = 0,
         array                       $resolvingKeys      = [],
+        bool                        $allowLazy          = true,
     ): mixed;
 
     /**
@@ -40,7 +41,7 @@ interface ContainerInterface
      * @template Class
      *
      * @param class-string<Class>|string|DescriptorInterface $name
-     * @param array<class-string>                            $resolvingKeys list of classes that are currently being resolved
+     * @param array<class-string|string>                     $resolvingKeys list of classes that are currently being resolved
      *
      * @return ($name is class-string ? Class|null|\Throwable : scalar|array<scalar>|null|\Throwable)
      * @throws \Throwable
@@ -50,6 +51,7 @@ interface ContainerInterface
         ?DependencyInterface            $forDependency      = null,
         bool                            $returnThrowable    = false,
         array                           $resolvingKeys      = [],
+        bool                            $allowLazy          = true,
     ): mixed;
 
     /**

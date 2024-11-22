@@ -9,12 +9,15 @@ interface ResolverInterface
     public function canResolveDependency(DependencyInterface $dependency, ContainerInterface $container): bool;
 
     /**
-     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
+     * @param array<class-string|string> $resolvingKeys list of classes|keys that are currently being resolved
+     * @param bool                       $allowLazy    The parameter is TRUE if creating Lazy dependencies is allowed.
      */
     public function resolveDependency(
         DependencyInterface $dependency,
         ContainerInterface $container,
         string|DescriptorInterface $name,
-        array $resolvingKeys = []
+        string $key,
+        array $resolvingKeys        = [],
+        bool $allowLazy             = true,
     ): mixed;
 }

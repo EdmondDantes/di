@@ -43,9 +43,10 @@ class Container implements NestedContainerInterface, DisposableInterface
         string|DescriptorInterface  $name,
         ?DependencyInterface        $forDependency      = null,
         int                         $stackOffset        = 0,
-        array                       $resolvingKeys   = [],
+        array                       $resolvingKeys      = [],
+        bool                        $allowLazy          = true,
     ): mixed {
-        $dependency                 = $this->findDependency($name, $forDependency, true, $resolvingKeys);
+        $dependency                 = $this->findDependency($name, $forDependency, true, $resolvingKeys, $allowLazy);
 
         if (null === $dependency) {
 
@@ -71,12 +72,13 @@ class Container implements NestedContainerInterface, DisposableInterface
         string|DescriptorInterface  $name,
         ?DependencyInterface        $forDependency      = null,
         bool                        $returnThrowable    = false,
-        array                       $resolvingKeys   = [],
+        array                       $resolvingKeys      = [],
+        bool                        $allowLazy          = true,
     ): mixed {
         $key                        = $this->findKey($name);
 
         if (null === $key) {
-            return $this->getParentContainer()?->findDependency($name, $forDependency, $returnThrowable, $resolvingKeys);
+            return $this->getParentContainer()?->findDependency($name, $forDependency, $returnThrowable, $resolvingKeys, $allowLazy);
         }
 
         $dependency                 = $this->container[$key];
@@ -112,7 +114,7 @@ class Container implements NestedContainerInterface, DisposableInterface
         if ($this->resolver->canResolveDependency($dependency, $this)) {
 
             try {
-                $this->container[$key] = $this->resolver->resolveDependency($dependency, $this, $name, $resolvingKeys);
+                $this->container[$key] = $this->resolver->resolveDependency($dependency, $this, $name, $key, $resolvingKeys, $allowLazy);
 
                 if ($this->container[$key] instanceof \WeakReference) {
                     return $this->container[$key]->get();
