@@ -101,17 +101,17 @@ class Resolver implements ResolverInterface
         if (false === $dependency instanceof ConstructibleInterface) {
             throw new \Error('descriptor must implement ConstructibleInterface');
         }
-        
+
         //
         // Use Proxy to avoid circular dependencies
         // or if the dependency is lazy.
         //
         if (\in_array($key, $resolvingKeys, true) || ($name instanceof DescriptorInterface && $name->isLazy())) {
 
-            if(false === $allowLazy) {
+            if (false === $allowLazy) {
                 throw new CircularDependencyException($name, $container, $resolvingKeys);
             }
-            
+
             $containerRef           = \WeakReference::create($container);
             $resolverRef            = \WeakReference::create($this);
 
@@ -129,21 +129,21 @@ class Resolver implements ResolverInterface
                     if ($container === null || $resolver === null) {
                         return null;
                     }
-                    
-                    if(false === in_array($key, $resolvingKeys, true)) {
+
+                    if (false === \in_array($key, $resolvingKeys, true)) {
                         $resolvingKeys[] = $key;
                     }
 
                     return $resolver->instanciateDependency($dependency, $container, $resolvingKeys, allowLazy: false);
                 });
         }
-        
+
         $resolvingKeys[]            = $key;
-        
+
         if (\count($resolvingKeys) > 32) {
             throw new MaxResolutionDepthException(32, $resolvingKeys);
         }
-        
+
         return $this->instanciateDependency($dependency, $container, $resolvingKeys);
     }
 

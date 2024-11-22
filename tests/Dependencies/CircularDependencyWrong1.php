@@ -12,7 +12,7 @@ final readonly class CircularDependencyWrong1
         // Wrong code because it tries to use proxy class
         echo $this->dependency2->getDependency1()::class;
     }
-    
+
     public function getDependency2(): CircularDependencyWrong2
     {
         return $this->dependency2;

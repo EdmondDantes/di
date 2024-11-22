@@ -18,7 +18,7 @@ final class CircularDependencyException extends \Exception
         $container                  = $container::class;
         $resolvingKeys              = \implode(' -> ', $resolvingKeys);
 
-        parent::__construct('A circular reference was detected while resolving a Lazy dependency "'.$name.'"! '
+        parent::__construct('A circular reference was detected while resolving a Lazy dependency "' . $name . '"! '
                             . ' The container: ' . $container . ' (resolving keys: ' . $resolvingKeys . ')'
         );
     }

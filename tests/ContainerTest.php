@@ -110,16 +110,16 @@ class ContainerTest extends TestCase
 
         $this->assertEquals($object, $container->resolveDependency('stdClass'));
     }
-    
+
     public function testCircularDependency(): void
     {
         $dependency1                = $this->container->resolveDependency(CircularDependency1::class);
         $dependency2                = $this->container->resolveDependency(CircularDependency2::class);
-        
+
         $this->assertInstanceOf(CircularDependency2::class, $dependency1->getDependency2());
         $this->assertInstanceOf(CircularDependency1::class, $dependency2->getDependency1());
     }
-    
+
     public function testCircularDependencyWrong(): void
     {
         $this->expectException(CircularDependencyException::class);
