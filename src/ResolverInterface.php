@@ -18,6 +18,6 @@ interface ResolverInterface
         string|DescriptorInterface $name,
         string $key,
         array $resolvingKeys        = [],
-        bool $allowLazy             = true,
+        bool $allowLazy             = false,
     ): mixed;
 }

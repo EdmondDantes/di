@@ -95,7 +95,7 @@ class Resolver implements ResolverInterface
         string|DescriptorInterface  $name,
         string $key,
         array $resolvingKeys        = [],
-        bool $allowLazy             = true,
+        bool $allowLazy             = false,
     ): mixed {
 
         if (false === $dependency instanceof ConstructibleInterface) {
@@ -144,7 +144,7 @@ class Resolver implements ResolverInterface
             throw new MaxResolutionDepthException(32, $resolvingKeys);
         }
 
-        return $this->instanciateDependency($dependency, $container, $resolvingKeys);
+        return $this->instanciateDependency($dependency, $container, $resolvingKeys, $allowLazy);
     }
 
     /**
@@ -157,7 +157,7 @@ class Resolver implements ResolverInterface
         DependencyInterface & ConstructibleInterface $dependency,
         ContainerInterface $container,
         array $resolvingKeys        = [],
-        bool  $allowLazy            = true,
+        bool  $allowLazy            = false,
     ): mixed {
         $dependencies               = static::resolveDependencies(
             $container, $dependency->getDependencyDescriptors(), $dependency, $resolvingKeys, $allowLazy
