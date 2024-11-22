@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace IfCastle\DI;
 
+use IfCastle\DI\Dependencies\CircularDependency1;
+use IfCastle\DI\Dependencies\CircularDependency2;
 use IfCastle\DI\Dependencies\ClassWithLazyDependency;
 use IfCastle\DI\Dependencies\ClassWithNoExistDependency;
 use IfCastle\DI\Dependencies\UseConstructorClass;
@@ -25,6 +27,8 @@ class ContainerTest extends TestCase
         $builder->bindInjectable([UseInjectableInterface::class, 'alias2'], UseInjectableClass::class);
         $builder->bindConstructible('wrong_dependency', ClassWithNoExistDependency::class);
         $builder->bindConstructible('lazy_dependency', ClassWithLazyDependency::class);
+        $builder->bindConstructible(CircularDependency1::class, CircularDependency1::class);
+        $builder->bindConstructible(CircularDependency2::class, CircularDependency2::class);
         $builder->bindSelfReference();
 
         $this->container            = $builder->buildContainer(new Resolver());
@@ -100,5 +104,14 @@ class ContainerTest extends TestCase
         $container                  = new Container(new Resolver(), ['stdClass' => \WeakReference::create($object)]);
 
         $this->assertEquals($object, $container->resolveDependency('stdClass'));
+    }
+    
+    public function testCircularDependency(): void
+    {
+        $dependency1                = $this->container->resolveDependency(CircularDependency1::class);
+        $dependency2                = $this->container->resolveDependency(CircularDependency2::class);
+        
+        $this->assertInstanceOf(CircularDependency2::class, $dependency1->getDependency2());
+        $this->assertInstanceOf(CircularDependency1::class, $dependency2->getDependency1());
     }
 }
