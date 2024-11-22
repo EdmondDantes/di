@@ -103,7 +103,6 @@ readonly class SomeClass implements SomeInterface
 The library supports lazy loading of dependencies by special attribute:
 
 ```php
-
 use IfCastle\DI\Lazy;
 
 readonly class SomeClass implements SomeInterface
@@ -112,14 +111,32 @@ readonly class SomeClass implements SomeInterface
         #[Lazy] private SomeRequiredInterface $lazy,
     ) {}
 }
-
-
 ```
+
+> **Warning**: Lazy dependencies are implemented using the PHP `LazyProxy` API, 
+> so the same dependencies in different classes will be **different objects**!
+> 
+> This means the `===` operation will return `false`, 
+> and `spl_object_id()` will return different values.
+
 
 ### Circular Dependencies
 
 The library allows resolving circular dependencies if the dependency is not used during resolution.
 If a circular dependency occurs, the library will create a `LazyProxy` object and return it.
+
+> **Warning**: Lazy or circular dependencies cannot be used **BEFORE** 
+> the process of resolving all dependencies is completed!
+> ```php
+> readonly class SomeClass implements SomeInterface
+> {
+>    public function __construct(
+>    #[Lazy] private SomeRequiredInterface $lazy,
+>    ) {
+>       $lazy->someMethod(); // Error: CircularDependencyException
+>   }
+> }
+> ```
 
 ### Custom attributes and Providers
 
@@ -311,3 +328,6 @@ final class InjectableClass implements InjectableInterface
 ```
 
 ### Resolver
+
+The Resolver component is responsible for the dependency resolution process. 
+It handles finding dependencies of a dependency and initializing the dependency's class.
