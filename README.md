@@ -26,7 +26,7 @@ You can install Dependency Injector using Composer. Run the following command:
 composer require ifcastle/di
 ```
 
-### Usage
+### Basic Usage
 
 The example below demonstrates how the library works with the `SomeClass` class, 
 which implements the SomeInterface interface.
@@ -45,9 +45,16 @@ use IfCastle\DI\Lazy;
 readonly class SomeClass implements SomeInterface
 {
     public function __construct(
+        // Required dependency
         private SomeRequiredInterface $required,
-        private SomeOptionalInterface $optional = null
-        private int $configValue = 0
+        // Optional dependency (can be null)
+        private SomeOptionalInterface $optional = null,
+        // Support a complex dependency type
+        private Interface1|Interface2 $someElseUnion,
+        // Support a complex dependency type with interception
+        private Interface1&Interface2 $someElseInterception,
+        // Dependency as configuration value
+        private int $configValue = 42,        
     ) {}
 }
 
@@ -56,8 +63,10 @@ readonly class SomeClass implements SomeInterface
 $builder                    = new ContainerBuilder();
 // 2. Define the constructible dependencies
 $builder->bindConstructible(SomeInterface::class, SomeClass::class);
-$builder->bindConstructible(SomeRequiredInterface::class, SomeRequiredClass::class);
-$builder->bindConstructible(SomeOptionalInterface::class, SomeOptionalClass::class);
+// 2. Bind several interfaces-aliases or string-key to one class
+$builder->bindConstructible([Interface1::class, Interface2::class, 'string-key'], SomeElseClass::class);
+// 2. Support WeakReference dereferencing
+$builder->bindObject(SomeOptionalInterface::class, WeakReference::create($someObject));
 // 2. Define the configuration values
 $builder->set('configValue', 42);
 
@@ -172,6 +181,18 @@ Below is an example of a method that retrieves a value from the configuration:
 ```
 This way, you can extend the DI logic without modifying the library's code.
 
+## Performance considerations
+
+The library does not include any compilers for `dependency descriptors`, 
+although their implementation is possible. 
+All dependency descriptors are resolved dynamically at application startup using the `Reflection API`. 
+
+Is this a performance issue? 
+Yes, if you are using `PHP` in a stateless mode, where the PHP process terminates after each request.
+
+For **stateful applications**, dependency resolution occurs once during the application's `warm-up phase` 
+or `on-demand`, which aligns with the purpose of this library.
+
 ## Architecture
 
 ![Architecture](docs/images/components.svg)
@@ -254,7 +275,8 @@ that resolves a dependency from the container.
 
 The **container builder** is responsible for constructing the container based on the specified dependencies.
 
-The current implementation uses `PHP Reflection` to build the container and supports the following types of dependencies:
+The current implementation uses `PHP Reflection` 
+to build the container and supports the following types of dependencies:
 
 * Dependency initialized through a constructor.
 * Dependency initialized through a specific method.
