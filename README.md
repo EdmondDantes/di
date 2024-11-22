@@ -10,12 +10,13 @@ The library is designed for `PHP 8.4` using the `LazyProxy API`.
 * Zero configuration. 
 Ability to inject dependencies without modifying the code in the dependent class.
 * Support for the concept of `environment`/`scope` for dependency lookup. Support **parent/child containers**.
-* Constructor injection
-* Injection of dependencies into properties
+* [Constructor injection](#initialization-through-a-constructor) of dependencies
+* [Injection of dependencies into properties](#initialization-through-a-method)
 * Injecting configuration values as a Dependency
-* Lazy loading
-* Handling circular dependencies
-* Support php-attributes for describing dependencies
+* [Lazy loading](#lazy-loading) of dependencies
+* [Auto dereferencing a `WeakReference` inside the container](#dereferencing-a-weakreference)
+* [Handling circular dependencies](#circular-dependencies)
+* [Support php-attributes for describing dependencies](#special-attributes)
 
 ### Installation
 
@@ -208,3 +209,105 @@ In this case, an attempt to resolve a dependency in the child container will res
 * if the dependency is not found in the child container, the search will continue in the parent container. 
 * however, if the child container has a definition for the dependency, it will be used.
 
+#### Dereferencing a WeakReference.
+
+The container supports **dereferencing weak references** 
+if they are detected as a value. 
+
+Using weak references is typically useful 
+when defining multiple aliases for dependencies or a reference to the container itself. 
+In such cases, weak references help avoid additional work for the garbage collector and prevent memory leaks. 
+
+#### Initializer
+
+Sometimes, it is necessary to initialize a dependency not directly through the constructor but with additional code. 
+For example, loading a database driver based on configuration or context.
+
+To solve this problem, an initializer can be used: 
+a special object executed only once at the moment of dependency resolution.
+
+To implement this approach, the library uses the `InitializerInterface`. 
+If the container holds a value of type `InitializerInterface`, the container uses the `executeInitializer` method 
+to obtain the dependency.
+
+See [SelfReferenceInitializer](./src/SelfReferenceInitializer.php) as an example of an initializer 
+that resolves a dependency from the container.
+
+## Builder
+
+The **container builder** is responsible for constructing the container based on the specified dependencies.
+
+The current implementation uses `PHP Reflection` to build the container and supports the following types of dependencies:
+
+* Dependency initialized through a constructor.
+* Dependency initialized through a specific method.
+* Dependency initialized via an Initializer or a closure.
+* Dependency with a ready-to-use object that does not require resolution.
+* Constant value.
+
+```php
+
+use IfCastle\DI\ContainerBuilder;
+use IfCastle\DI\ContainerInterface;
+
+$builder                    = new ContainerBuilder();
+// Constructible dependencies
+$builder->bindConstructible(SomeInterface::class, SomeClass::class);
+// Injectable dependencies
+$builder->bindInjectable(SomeRequiredInterface::class, SomeRequiredClass::class);
+// Bind to Initializer 
+$builder->bindInitializer(SomeOptionalInterface::class, static function (?ContainerInterface $container = null, array $resolvingKeys = []) {
+    return $container->resolveDependency(SomeOptionalInterface::class, resolvingKeys: $resolvingKeys);
+});
+// Bind to Object
+$builder->bindObject('stdClass', new stdClass());
+
+// 3. Build the container
+$container                  = $builder->buildContainer(new Resolver());
+```
+
+The builder creates a dependency descriptor where the key for the dependency is the data type. 
+If a parameter has a default value, the dependency is marked as optional. 
+If there is no default value, the dependency is marked as required.
+
+A dependency can have a complex data type defined through PHP `UNION` or `INTERSECTION` expressions.
+In this case, the container will look for the dependency using multiple type keys.
+
+### Initialization through a constructor
+
+Initialization through the constructor assumes that all dependencies are defined as constructor parameters. 
+In this case, the builder uses the PHP Reflection API to read the constructor's parameter list and their data types.
+
+### Initialization through a method
+
+For **method-based injection**, a special interface `InjectableInterface` and a trait `InjectorTrait` are used, 
+which implement the injection method.
+
+In this case, dependencies are described using attributes above the class properties. 
+The class can be constructed before the dependencies are resolved.
+
+```php
+use IfCastle\DI\Dependency;
+use IfCastle\DI\InjectableInterface;
+use IfCastle\DI\InjectorTrait;
+use IfCastle\DI\Lazy;
+
+final class InjectableClass implements InjectableInterface
+{
+    use InjectorTrait;
+
+    #[Dependency]
+    protected UseConstructorInterface $required;
+
+    #[Dependency]
+    protected UseConstructorInterface|null $optional;
+
+    #[Dependency] #[Lazy]
+    protected UseConstructorInterface $lazy;
+
+    protected string $data = '';
+}
+
+```
+
+### Resolver
