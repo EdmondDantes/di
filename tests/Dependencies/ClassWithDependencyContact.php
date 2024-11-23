@@ -9,7 +9,7 @@ final readonly class ClassWithDependencyContact
     public function __construct(
         private InterfaceWithDependencyContact $some
     ) {}
-    
+
     public function test(): void
     {
         $this->some->someMethod();

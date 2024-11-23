@@ -74,11 +74,11 @@ class AttributesToDescriptors
         if ($descriptor instanceof DescriptorInterface === false) {
             throw new \Error('Attribute is not an instance of Dependency');
         }
-        
+
         if (($descriptorProvider = $descriptor->getDescriptorProvider()) !== null) {
             return $descriptorProvider->provideDescriptor($descriptor, $reflectionClass, $parameter, $object);
         }
-        
+
         if (false === $descriptor instanceof Dependency) {
             return $descriptor;
         }
@@ -131,15 +131,15 @@ class AttributesToDescriptors
         } else {
             $descriptor         = new Dependency();
         }
-        
+
         if ($descriptor instanceof DescriptorInterface === false) {
             throw new \Error('Attribute is not an instance of Dependency');
         }
-        
+
         if (($descriptorProvider = $descriptor->getDescriptorProvider()) !== null) {
             return $descriptorProvider->provideDescriptor($descriptor, $reflectionClass, $property, $object);
         }
-        
+
         if (false === $descriptor instanceof Dependency) {
             return $descriptor;
         }
@@ -292,51 +292,51 @@ class AttributesToDescriptors
 
         return true;
     }
-    
+
     /**
      * @throws \ReflectionException
      */
     protected static function handleType(Dependency $descriptor): void
     {
-        if($descriptor->type === null) {
+        if ($descriptor->type === null) {
             return;
         }
-        
+
         $types                      = $descriptor->type;
-        
+
         foreach (\is_string($types) ? [$types] : $types as $type) {
-            
-            if(\class_exists($type) === false && \interface_exists($type) === false) {
+
+            if (\class_exists($type) === false && \interface_exists($type) === false) {
                 continue;
             }
-            
+
             $reflectionType         = new \ReflectionClass($type);
             $attributes             = $reflectionType->getAttributes(DependencyContract::class);
-            
-            if($attributes === []) {
+
+            if ($attributes === []) {
                 continue;
             }
-            
+
             $contract               = $attributes[0]->newInstance();
-            
-            if($contract instanceof DependencyContract) {
-                
+
+            if ($contract instanceof DependencyContract) {
+
                 //
                 // Define a lazy option and providers
                 //
-                
-                if($contract->isLazy) {
+
+                if ($contract->isLazy) {
                     $descriptor->isLazy = true;
                 }
-                
-                if($descriptor->getProvider() === null) {
+
+                if ($descriptor->getProvider() === null) {
                     $descriptor->provider = $contract->provider;
                 }
-                
-                if($descriptor->getDescriptorProvider() === null) {
+
+                if ($descriptor->getDescriptorProvider() === null) {
                     $descriptor->descriptorProvider = $contract->descriptorProvider;
                 }
-                
+
                 break;
             }
         }

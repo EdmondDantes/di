@@ -7,7 +7,5 @@ namespace IfCastle\DI\Dependencies;
 final class ObjectWithDependencyContact implements InterfaceWithDependencyContact
 {
     #[\Override]
-    public function someMethod(): void
-    {
-    }
+    public function someMethod(): void {}
 }

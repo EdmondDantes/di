@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace IfCastle\DI;
 
 /**
- * ## DescriptorProviderInterface
+ * ## DescriptorProviderInterface.
  *
  * The interface describes a way to modify the behavior of the ContainerBuilder.
  * By implementing the provideDescriptor method,
@@ -22,7 +22,6 @@ interface DescriptorProviderInterface
      * @param \ReflectionParameter|\ReflectionProperty $reflectionTarget    Target reflection.
      * @param object|string                            $object              Target object.
      *
-     * @return DescriptorInterface
      */
     public function provideDescriptor(
         DescriptorInterface  $descriptor,

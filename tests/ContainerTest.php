@@ -12,7 +12,6 @@ use IfCastle\DI\Dependencies\ClassWithDependencyContact;
 use IfCastle\DI\Dependencies\ClassWithLazyDependency;
 use IfCastle\DI\Dependencies\ClassWithNoExistDependency;
 use IfCastle\DI\Dependencies\CustomDescriptorClass;
-use IfCastle\DI\Dependencies\InterfaceWithDependencyContact;
 use IfCastle\DI\Dependencies\ObjectWithDependencyContact;
 use IfCastle\DI\Dependencies\UseConstructorClass;
 use IfCastle\DI\Dependencies\UseConstructorInterface;
@@ -129,30 +128,30 @@ class ContainerTest extends TestCase
         $this->expectException(CircularDependencyException::class);
         $this->container->resolveDependency(CircularDependencyWrong1::class);
     }
-    
+
     public function testDescriptorProvider(): void
     {
         $builder                    = new ContainerBuilder();
         $builder->bindConstructible('customKey', UseConstructorClass::class);
         $builder->bindConstructible(CustomDescriptorClass::class, CustomDescriptorClass::class);
-        
+
         $container                  = $builder->buildContainer(new Resolver());
-        
+
         $dependency                 = $container->resolveDependency(CustomDescriptorClass::class);
-        
+
         $this->assertInstanceOf(CustomDescriptorClass::class, $dependency);
     }
-    
+
     public function testDependencyContract(): void
     {
         $builder                    = new ContainerBuilder();
         $builder->bindConstructible('specificKey', ObjectWithDependencyContact::class);
         $builder->bindConstructible(ClassWithDependencyContact::class, ClassWithDependencyContact::class);
-        
+
         $container                  = $builder->buildContainer(new Resolver());
-        
+
         $dependency                 = $container->resolveDependency(ClassWithDependencyContact::class);
-        
+
         $this->assertInstanceOf(ClassWithDependencyContact::class, $dependency);
     }
 }

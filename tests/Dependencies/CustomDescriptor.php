@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace IfCastle\DI\Dependencies;
 
-use IfCastle\DI\AttributesToDescriptors;
+use Attribute;
 use IfCastle\DI\Dependency;
 use IfCastle\DI\DescriptorInterface;
 use IfCastle\DI\DescriptorProviderInterface;
-
-use Attribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final class CustomDescriptor extends Dependency implements DescriptorProviderInterface
@@ -19,21 +17,20 @@ final class CustomDescriptor extends Dependency implements DescriptorProviderInt
     {
         return $this;
     }
-    
+
     #[\Override]
     public function provideDescriptor(
         DescriptorInterface $descriptor,
         \ReflectionClass $reflectionClass,
         \ReflectionParameter|\ReflectionProperty $reflectionTarget,
         object|string $object,
-    ): DescriptorInterface
-    {
-        if($descriptor !== $this) {
+    ): DescriptorInterface {
+        if ($descriptor !== $this) {
             throw new \TypeError('Descriptor is not an instance of ' . self::class);
         }
-        
+
         $descriptor->key = 'customKey';
-        
+
         // Return self descriptor.
         return $descriptor;
     }

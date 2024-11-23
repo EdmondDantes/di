@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace IfCastle\DI;
 
 /**
- * ## DependencyContract
+ * ## DependencyContract.
  *
  * Dependency contract: a special descriptor that allows interfaces and classes
  * to define how dependencies are resolved and descriptors are created.
