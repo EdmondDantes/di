@@ -9,6 +9,9 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Dependency implements DescriptorInterface
 {
+    public ProviderInterface|null $provider = null;
+    public DescriptorProviderInterface|null $descriptorProvider = null;
+    
     public function __construct(
         public string $key               = '',
         /** @var string|string[]|null */
@@ -53,9 +56,15 @@ class Dependency implements DescriptorInterface
     #[\Override]
     public function getProvider(): ProviderInterface|null
     {
-        return null;
+        return $this->provider;
     }
-
+    
+    #[\Override]
+    public function getDescriptorProvider(): DescriptorProviderInterface|null
+    {
+        return $this->descriptorProvider;
+    }
+    
     #[\Override]
     public function hasDefaultValue(): bool
     {

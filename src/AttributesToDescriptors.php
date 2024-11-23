@@ -58,7 +58,7 @@ class AttributesToDescriptors
         \ReflectionClass     $reflectionClass,
         \ReflectionParameter $parameter,
         object|string        $object,
-        bool                 $resolveScalarAsConfig = true
+        bool                 $resolveScalarAsConfig = true,
     ): DescriptorInterface {
         $attributes             = $parameter->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
 
@@ -74,7 +74,11 @@ class AttributesToDescriptors
         if ($descriptor instanceof DescriptorInterface === false) {
             throw new \Error('Attribute is not an instance of Dependency');
         }
-
+        
+        if (($descriptorProvider = $descriptor->getDescriptorProvider()) !== null) {
+            return $descriptorProvider->provideDescriptor($reflectionClass, $parameter, $object);
+        }
+        
         if (false === $descriptor instanceof Dependency) {
             return $descriptor;
         }
@@ -85,6 +89,7 @@ class AttributesToDescriptors
 
         if ($descriptor->type === null) {
             $descriptor->type   = self::defineType($parameter->getType(), $object);
+            self::handleType($descriptor);
         }
 
         if ($resolveScalarAsConfig && $isNotDefined && self::isScalarType($descriptor->type)) {
@@ -116,7 +121,7 @@ class AttributesToDescriptors
         \ReflectionClass    $reflectionClass,
         \ReflectionProperty $property,
         object|string       $object,
-        bool                $resolveScalarAsConfig = true
+        bool                $resolveScalarAsConfig = true,
     ): DescriptorInterface {
         $attributes             = $property->getAttributes(DescriptorInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
 
@@ -126,9 +131,17 @@ class AttributesToDescriptors
         } else {
             $descriptor         = new Dependency();
         }
-
-        if ($descriptor instanceof Dependency === false) {
+        
+        if ($descriptor instanceof DescriptorInterface === false) {
             throw new \Error('Attribute is not an instance of Dependency');
+        }
+        
+        if (($descriptorProvider = $descriptor->getDescriptorProvider()) !== null) {
+            return $descriptorProvider->provideDescriptor($reflectionClass, $property, $object);
+        }
+        
+        if (false === $descriptor instanceof Dependency) {
+            return $descriptor;
         }
 
         if ($descriptor->key === '') {
@@ -278,5 +291,54 @@ class AttributesToDescriptors
         }
 
         return true;
+    }
+    
+    /**
+     * @throws \ReflectionException
+     */
+    protected static function handleType(Dependency $descriptor): void
+    {
+        if($descriptor->type === null) {
+            return;
+        }
+        
+        $types                      = $descriptor->type;
+        
+        foreach (\is_string($types) ? [$types] : $types as $type) {
+            
+            if(\class_exists($type) === false) {
+                continue;
+            }
+            
+            $reflectionType         = new \ReflectionClass($type);
+            $attributes             = $reflectionType->getAttributes(DependencyContract::class);
+            
+            if($attributes === []) {
+                continue;
+            }
+            
+            $contract               = $attributes[0]->newInstance();
+            
+            if($contract instanceof DependencyContract) {
+                
+                //
+                // Define a lazy option and providers
+                //
+                
+                if($contract->isLazy) {
+                    $descriptor->isLazy = true;
+                }
+                
+                if($descriptor->getProvider() === null) {
+                    $descriptor->provider = $contract->provider;
+                }
+                
+                if($descriptor->getDescriptorProvider() === null) {
+                    $descriptor->descriptorProvider = $contract->descriptorProvider;
+                }
+                
+                break;
+            }
+        }
     }
 }
