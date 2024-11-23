@@ -31,6 +31,8 @@ composer require ifcastle/di
 
 ### Basic Usage
 
+> Please read the [Project Philosophy](#project-philosophy) section before using the library.
+
 The example below demonstrates how the library works with the `SomeClass` class, 
 which implements the SomeInterface interface.
 
@@ -183,6 +185,46 @@ Below is an example of a method that retrieves a value from the configuration:
 
 ```
 This way, you can extend the `DI` logic without modifying the library's code.
+
+## Project Philosophy
+
+This project implements a **particular algorithm** for dependency management, 
+adhering to the following rule:
+
+> If **Class A** requires a dependency by the contract **Interface**, 
+> and **Class B** also requires a dependency **Interface**, 
+> both classes will receive the same dependency **Class D** within a single **runtime environment**.
+
+**The following statements are true:**
+
+* The mapping scheme between `contracts` (`interfaces`) and `dependencies` is called the `Runtime Environment`.
+* The mapping scheme is shared across all dependencies.
+* A single `runtime environment` cannot have two different dependencies linked to the same contract (interface).
+* A single `dependency` can be associated with `multiple contracts`.
+* An application can have multiple `runtime environments` simultaneously, 
+each with its own mapping schemes and `dependencies`.
+* Two `runtime environments` can have a relationship: **Parent -> Child**.
+
+### Comparison of IfCastle DI vs. Symfony and other DI implementations
+
+| **Aspect**                              | **IfCastle DI**                                                                               | **Symfony**                                                                                 |
+|-----------------------------------------|-----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| **Dependency Resolution**               | Single container for all dependencies in one runtime environment (`Service Locator` approach) | Each service explicitly defines its dependencies, configured individually                   |
+| **Same Contract Handling**              | One contract always linked to one dependency in a runtime environment                         | Allows different implementations of the same interface through qualifiers, tags, or aliases |
+| **Runtime Environments**                | Supports multiple runtime environments with hierarchical relationships (**Parent -> Child**)  | Global container; separate environments typically require separate configurations           |
+| **Different Dependencies for Same Key** | Not possible within the same runtime environment                                              | Fully supported using tags, aliases, or contextual bindings                                 |
+| **Approach to Dependency Management**   | Service Locator-like: dependencies resolved from a shared container                           | Strict DI Container approach: dependencies injected explicitly                              |
+| **Parent-Child Relationship**           | Direct support for hierarchical environments with inheritance                                 | No direct concept of parent-child environments; containers are isolated                     |
+
+The approach of this library has **several benefits**:
+
+* Minimal code volume due to significant simplification of logic.
+* The ability to inject dependencies into a class that has not been preconfigured, 
+provided the class has access to the `Runtime Environment`.
+* The dependency container is created **once** at the application startup (`Bootloader Strategy`) 
+and can be reused by various components without prior configuration.
+* This project does not mention **AutoWire** because dependencies are already linked 
+based on interface names, and this method is the *PRIMARY* approach.
 
 ## Zero configuration principle
 
@@ -588,3 +630,5 @@ Using the override mechanism, containers can inherit or override each other's de
 By managing the logic of the ContainerBuilder and Resolver, which are unique to each container, 
 the developer can modify the dependency resolution logic in different contexts 
 without altering the code of `Target` classes.
+
+## 
