@@ -311,13 +311,17 @@ class AttributesToDescriptors
             }
 
             $reflectionType         = new \ReflectionClass($type);
-            $attributes             = $reflectionType->getAttributes(DependencyContract::class);
 
-            if ($attributes === []) {
-                continue;
+            $contract               = null;
+
+            foreach (self::iterateByInheritanceForDependencyContract($reflectionType) as $reflection) {
+                $attributes         = $reflection->getAttributes(DependencyContract::class);
+
+                if ($attributes !== []) {
+                    $contract       = $attributes[0]->newInstance();
+                    break;
+                }
             }
-
-            $contract               = $attributes[0]->newInstance();
 
             if ($contract instanceof DependencyContract) {
 
@@ -341,7 +345,7 @@ class AttributesToDescriptors
             }
         }
     }
-    
+
     /**
      * @param \ReflectionClass<object> $class
      *
@@ -350,35 +354,35 @@ class AttributesToDescriptors
     public static function iterateByInheritanceForDependencyContract(\ReflectionClass $class): iterable
     {
         yield $class;
-        
+
         // iterate by inheritance
         while (true) {
-            
+
             $current                = $class;
-            
+
             // iterate by interfaces
             while ($current !== null) {
-                
+
                 // get first interface
                 $interfaces         = $current->getInterfaces();
-                
-                if($interfaces === []) {
+
+                if ($interfaces === []) {
                     break;
                 }
-                
+
                 $current            = $interfaces[0];
-                
+
                 yield $current;
             }
-            
+
             $parent                 = $class->getParentClass();
-            
+
             if ($parent === false) {
                 break;
             }
-            
+
             yield $parent;
-            
+
             $class                  = $parent;
         }
     }
