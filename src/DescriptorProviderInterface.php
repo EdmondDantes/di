@@ -17,13 +17,15 @@ interface DescriptorProviderInterface
     /**
      * Provide dependency descriptor for target reflection.
      *
+     * @param DescriptorInterface                      $descriptor          Parent descriptor.
      * @param \ReflectionClass<object>                 $reflectionClass     Target class reflection.
      * @param \ReflectionParameter|\ReflectionProperty $reflectionTarget    Target reflection.
      * @param object|string                            $object              Target object.
      *
      * @return DescriptorInterface
      */
-    public static function provideDescriptor(
+    public function provideDescriptor(
+        DescriptorInterface  $descriptor,
         \ReflectionClass     $reflectionClass,
         \ReflectionParameter|\ReflectionProperty $reflectionTarget,
         object|string        $object

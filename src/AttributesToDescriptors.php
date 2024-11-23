@@ -76,7 +76,7 @@ class AttributesToDescriptors
         }
         
         if (($descriptorProvider = $descriptor->getDescriptorProvider()) !== null) {
-            return $descriptorProvider->provideDescriptor($reflectionClass, $parameter, $object);
+            return $descriptorProvider->provideDescriptor($descriptor, $reflectionClass, $parameter, $object);
         }
         
         if (false === $descriptor instanceof Dependency) {
@@ -137,7 +137,7 @@ class AttributesToDescriptors
         }
         
         if (($descriptorProvider = $descriptor->getDescriptorProvider()) !== null) {
-            return $descriptorProvider->provideDescriptor($reflectionClass, $property, $object);
+            return $descriptorProvider->provideDescriptor($descriptor, $reflectionClass, $property, $object);
         }
         
         if (false === $descriptor instanceof Dependency) {
@@ -180,7 +180,7 @@ class AttributesToDescriptors
      * @return string|string[]|null
      * @throws InjectionNotPossible
      */
-    protected static function defineType(mixed $type, object|string $object): string|array|null
+    public static function defineType(mixed $type, object|string $object): string|array|null
     {
         if ($type instanceof \ReflectionUnionType) {
             return self::defineUnionType($type, $object);
@@ -306,7 +306,7 @@ class AttributesToDescriptors
         
         foreach (\is_string($types) ? [$types] : $types as $type) {
             
-            if(\class_exists($type) === false) {
+            if(\class_exists($type) === false && \interface_exists($type) === false) {
                 continue;
             }
             
