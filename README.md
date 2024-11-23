@@ -456,6 +456,19 @@ final readonly class ClassWithDependencyContact
 
 ```
 
+#### DependencyContract lookup logic
+
+The `DependencyContract` attribute is inherited according to specific rules:
+
+1. First, `DependencyContract` is checked in the current class or interface.
+2. If it is not found, `DependencyContract` is checked in the **FIRST inherited interface** of the class.
+3. If it is still not found, `DependencyContract` is checked further across all first descendants of the interfaces.
+4. If it is not found there either, `DependencyContract` is checked for the child class, and the algorithm loops back.
+
+In other words, the first interface has priority in the DependencyContract inheritance logic.
+
+This inheritance algorithm is chosen to reduce the complexity for developers when searching for the `DependencyContract`.
+
 ### Initialization through a constructor
 
 Initialization through the constructor assumes that all dependencies are defined as constructor parameters. 
