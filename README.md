@@ -1,14 +1,14 @@
 # Dependency Injection [![PHP Composer](https://github.com/EdmondDantes/di/actions/workflows/php.yml/badge.svg)](https://github.com/EdmondDantes/di/actions/workflows/php.yml)
 
-`Dependency Injection` (DI) is a lightweight `PHP` library for dependency injection
+`Dependency Injection` (DI) is a lightweight **extensible** `PHP` library for dependency injection
 for `stateful` application.
 
 The library is designed for `PHP 8.4` using the `LazyProxy API`.
 
 ### Features
 
-* Zero configuration. 
-Ability to inject dependencies without modifying the code in the dependent class.
+* [Zero configuration](#zero-configuration-principle).
+  (*Ability to inject dependencies without modifying the code in the dependent class*).
 * Support for the concept of `environment`/`scope` for dependency lookup. Support **parent/child containers**.
 * [Constructor injection](#initialization-through-a-constructor) of dependencies
 * [Injection of dependencies into properties](#initialization-through-a-method)
@@ -17,6 +17,8 @@ Ability to inject dependencies without modifying the code in the dependent class
 * [Auto dereferencing a `WeakReference` inside the container](#dereferencing-a-weakreference)
 * [Handling circular dependencies](#circular-dependencies)
 * [Support php-attributes for describing dependencies](#special-attributes)
+* [Custom dependency providers](#custom-attributes-and-providers)
+* [Custom descriptor providers](#descriptor-provider)
 
 ### Installation
 
@@ -179,7 +181,74 @@ Below is an example of a method that retrieves a value from the configuration:
     }
 
 ```
-This way, you can extend the DI logic without modifying the library's code.
+This way, you can extend the `DI` logic without modifying the library's code.
+
+## Zero configuration principle
+
+The task of dependency resolution is typically addressed by separating the information 
+about how to locate dependencies from the objects that require them. For example:
+
+* There is a `Target` class.
+* The Target class has an array of dependencies.
+* Define a `TargetDependencies` class, responsible for resolving these dependencies.
+
+Does this approach meet the SOLID principles?
+The `TargetDependencies` class must duplicate *knowledge* about the required dependencies 
+of the `Target` class.
+However, the `Target` class is the single source of truth.
+
+Another drawback of this solution is the increased code volume and complexity. 
+The developer must now remember two points of definition related to initialization.
+
+For this reason, modern DI approaches combine metadata for dependency resolution 
+directly within the Target class.
+
+To store metadata, attributes are used, which are directly placed in the `Target` class.
+Now the knowledge about how to resolve dependencies flows into the `Target` class, 
+binding it to the DI implementation.
+
+This coupling results in components requiring a specific library for dependency resolution 
+and being unable to function independently. In the absence of a standard, this hinders code reusability.
+
+The `Zero configuration principle` suggests avoiding the use of metadata within the `Target` class, 
+making it independent of any specific DI implementation.
+
+To reduce the coupling of `Target` classes, 
+our library proposes moving dependency metadata knowledge to the **contract domain**. 
+In other words, information about how to resolve dependencies can be stored 
+in an interface rather than in the implementation. 
+This keeps dependency definitions as transparent as possible.
+
+Example:
+
+```php
+declare(strict_types=1);
+
+use IfCastle\DI\DependencyContract;
+
+#[DependencyContract(new DependencyProvider())]
+interface InterfaceWithDependencyContact
+{
+    public function someMethod(): void;
+}
+
+final readonly class ClassWithDependencyContact
+{
+    public function __construct(
+        private InterfaceWithDependencyContact $some
+    ) {}
+}
+
+```
+
+In this case, the `ClassWithDependencyContact` class is a `Target` class,
+and the `InterfaceWithDependencyContact` interface is a `Contract`.
+
+Using the `DependencyContract` attribute, 
+the interface specifies how the dependency should be resolved. 
+This solution is also not ideal, but in many cases, it results in cleaner code.
+
+See more: [Complex use cases](#complex-use-cases)
 
 ## Performance considerations
 
@@ -312,6 +381,64 @@ If there is no default value, the dependency is marked as required.
 A dependency can have a complex data type defined through PHP `UNION` or `INTERSECTION` expressions.
 In this case, the container will look for the dependency using multiple type keys.
 
+#### Descriptor Provider
+
+You can override the behavior of the `Builder` by implementing the `DescriptorProviderInterface`.
+There are two ways to do this:
+
+* Implement the `DescriptorInterface::getDescriptorProvider()` method in a custom attribute.
+
+```php
+
+use Attribute;
+use IfCastle\DI\Dependency;
+use IfCastle\DI\DescriptorInterface;
+use IfCastle\DI\DescriptorProviderInterface;
+
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+final class CustomDescriptor extends Dependency implements DescriptorProviderInterface
+{
+    #[\Override]
+    public function getDescriptorProvider(): DescriptorProviderInterface|null
+    {
+        return $this;
+    }
+
+    #[\Override]
+    public function provideDescriptor(
+        DescriptorInterface $descriptor,
+        \ReflectionClass $reflectionClass,
+        \ReflectionParameter|\ReflectionProperty $reflectionTarget,
+        object|string $object,
+    ): DescriptorInterface {
+        // Custom logic here
+    }
+}
+
+```
+
+* Use `DependencyContract` on Interface.
+
+```php
+
+use IfCastle\DI\DependencyContract;
+
+// Define custom descriptor provider for the interface
+#[DependencyContract(descriptorProvider: new DescriptorProvider())]
+interface InterfaceWithDependencyContact
+{
+    public function someMethod(): void;
+}
+
+final readonly class ClassWithDependencyContact
+{
+    public function __construct(
+        private InterfaceWithDependencyContact $some
+    ) {}
+}
+
+```
+
 ### Initialization through a constructor
 
 Initialization through the constructor assumes that all dependencies are defined as constructor parameters. 
@@ -353,3 +480,68 @@ final class InjectableClass implements InjectableInterface
 
 The Resolver component is responsible for the dependency resolution process. 
 It handles finding dependencies of a dependency and initializing the dependency's class.
+
+## Complex use cases
+
+Let's consider a realistic example of using the library. 
+Our goal is to develop a telemetry component (Prometheus-like) that allows defining counters as dependencies.
+
+```php
+declare(strict_types=1);
+
+class DataBase 
+{
+    public function __construct(
+        private string $dsn,
+        private string $user,
+        private string $password,
+        private TelemetryCounterInterface $queryCounter,
+        private TelemetryCounterInterface $errorCounter,
+    ) {}
+}
+
+```
+
+In the example above, we define two dependencies of type `TelemetryCounterInterface`. 
+TelemetryCounterInterface is a telemetry counter contract that increments over time.
+
+The initialization of such a counter is performed in two stages:
+
+```php
+// 1. Look up the registry
+$registry   = $container->resolveDependency(TelemetryRegistryInterface::class);
+// 2. Register the counter
+$counter    = $registry->getOrRegisterCounter('test', 'some_counter', 'it increases', ['type']);
+```
+
+Let's define the `TelemetryCounterInterface` interface:
+
+```php
+class TelemetryProvider implements \IfCastle\DI\ProviderInterface
+{
+    public function provide(
+        ContainerInterface $container,
+        DescriptorInterface $descriptor,
+        ?DependencyInterface $forDependency = null,
+        array $resolvingKeys = [],
+    ): mixed
+    {
+        // Here, you can use the ReflectionAPI for more complex logic
+        // to determine counter attributes
+        // based on knowledge about the class where they need to be injected.
+        $forClass   = $forDependency->getDependencyName() ?? 'global';        
+        $registry   = $container->resolveDependency(TelemetryRegistryInterface::class);
+        return $registry->getOrRegisterCounter($forClass.'_'.$descriptor->getDependencyProperty());
+    }
+}
+
+#[\IfCastle\DI\DependencyContract(new TelemetryProvider())]
+interface TelemetryCounterInterface  
+{
+    public function inc(): void;
+}
+
+```
+
+Now we can define telemetry counters in `Target` classes, fully hiding their implementation 
+details as well as the method of dependency resolution from the `Target` object.

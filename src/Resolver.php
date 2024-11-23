@@ -43,7 +43,7 @@ class Resolver implements ResolverInterface
     }
 
     /**
-     * @param array<class-string> $resolvingKeys list of classes that are currently being resolved
+     * @param array<class-string|string> $resolvingKeys list of classes that are currently being resolved
      *
      * @throws DependencyNotFound
      */
