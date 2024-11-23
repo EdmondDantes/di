@@ -9,7 +9,8 @@ The library is designed for `PHP 8.4` using the `LazyProxy API`.
 
 * [Zero configuration](#zero-configuration-principle).
   (*Ability to inject dependencies without modifying the code in the dependent class*).
-* Support for the concept of `environment`/`scope` for dependency lookup. Support **parent/child containers**.
+* [Support for the concept of `environment`/`scope`](#environment-and-scope-concepts) for dependency lookup. 
+* [Support parent/child containers](#container-inheritance).
 * [Constructor injection](#initialization-through-a-constructor) of dependencies
 * [Injection of dependencies into properties](#initialization-through-a-method)
 * Injecting configuration values as a Dependency
@@ -340,6 +341,22 @@ to obtain the dependency.
 See [SelfReferenceInitializer](./src/SelfReferenceInitializer.php) as an example of an initializer 
 that resolves a dependency from the container.
 
+#### Throwable values
+
+Container values can be `exception` objects (`Throwable`).
+When attempting to resolve a dependency whose value is an exception object, 
+that exception will be thrown.
+
+This applies to both the `resolveDependency` method and the `findDependency` method. 
+However, you can change this behavior by specifying the `$returnThrowable` flag 
+for the `findDependency`.
+
+Thus, 
+
+> if a dependency was resolved **with an error once**, any later attempt 
+> to retrieve this dependency will result in **the same error** without 
+> attempting to resolve it again.
+
 ## Builder
 
 The **container builder** is responsible for constructing the container based on the specified dependencies.
@@ -527,7 +544,7 @@ class TelemetryProvider implements \IfCastle\DI\ProviderInterface
     ): mixed
     {
         // Here, you can use the ReflectionAPI for more complex logic
-        // to determine counter attributes
+        // to determine counter-attributes
         // based on knowledge about the class where they need to be injected.
         $forClass   = $forDependency->getDependencyName() ?? 'global';        
         $registry   = $container->resolveDependency(TelemetryRegistryInterface::class);
@@ -545,3 +562,16 @@ interface TelemetryCounterInterface
 
 Now we can define telemetry counters in `Target` classes, fully hiding their implementation 
 details as well as the method of dependency resolution from the `Target` object.
+
+## Environment and Scope concepts
+
+The library's design is oriented towards usage following the `Environment` and `Scope` paradigm. 
+The `Container` component acts as the `environment`, 
+defining and limiting the set of dependencies that will be interconnected.
+
+An application can define multiple containers, managing which dependencies will be applied in each case. 
+Using the override mechanism, containers can inherit or override each other's dependencies.
+
+By managing the logic of the ContainerBuilder and Resolver, which are unique to each container, 
+the developer can modify the dependency resolution logic in different contexts 
+without altering the code of `Target` classes.
