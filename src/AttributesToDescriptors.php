@@ -315,7 +315,7 @@ class AttributesToDescriptors
             $contract               = null;
 
             foreach (self::iterateByInheritanceForDependencyContract($reflectionType) as $reflection) {
-                $attributes         = $reflection->getAttributes(DependencyContract::class);
+                $attributes         = $reflection->getAttributes(DependencyContract::class, \ReflectionAttribute::IS_INSTANCEOF);
 
                 if ($attributes !== []) {
                     $contract       = $attributes[0]->newInstance();

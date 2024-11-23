@@ -11,7 +11,7 @@ namespace IfCastle\DI;
  * to define how dependencies are resolved and descriptors are created.
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-final readonly class DependencyContract
+readonly class DependencyContract
 {
     public function __construct(
         public ProviderInterface|null $provider = null,
