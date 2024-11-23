@@ -341,4 +341,45 @@ class AttributesToDescriptors
             }
         }
     }
+    
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return iterable<\ReflectionClass<object>>
+     */
+    public static function iterateByInheritanceForDependencyContract(\ReflectionClass $class): iterable
+    {
+        yield $class;
+        
+        // iterate by inheritance
+        while (true) {
+            
+            $current                = $class;
+            
+            // iterate by interfaces
+            while ($current !== null) {
+                
+                // get first interface
+                $interfaces         = $current->getInterfaces();
+                
+                if($interfaces === []) {
+                    break;
+                }
+                
+                $current            = $interfaces[0];
+                
+                yield $current;
+            }
+            
+            $parent                 = $class->getParentClass();
+            
+            if ($parent === false) {
+                break;
+            }
+            
+            yield $parent;
+            
+            $class                  = $parent;
+        }
+    }
 }
